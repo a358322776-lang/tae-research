@@ -1,0 +1,10 @@
+# 只允许导出到仓的文件清单（白名单制）。不在清单里的文件一律不进仓。
+# 本地（本 VM）：
+#   goals/100u-200u/DISCIPLINE.md -> rules/
+#   goals/100u-200u/hidden_files/backtest-*.py -> backtests/
+#   goals/100u-200u/files/paper-trades-ledger.md -> trades/paper-ledger.md
+#   goals/100u-200u/files/eth-v41-net-audit.md -> audits/
+# VPS（需主人逐次核准后手动导出，永不自动同步）：
+#   ~/app/executor/trades-ledger.md -> trades/live-ledger.md（追加）
+#   ~/app/executor/events.jsonl -> 永不导出（含运行细节）
+#   ~/app/executor/.env / .env.live / state.json -> 永不导出

@@ -1,0 +1,13 @@
+# 凭证与执行器运行时，永远不进仓
+.env
+.env.*
+*.key
+*.pem
+*secret*
+*credential*
+state.json
+tae-scanner-state.json
+tae-scanner-tradfi-state.json
+events.jsonl
+.live-ok
+hosts.yml
