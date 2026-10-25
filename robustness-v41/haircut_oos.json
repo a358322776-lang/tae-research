@@ -1,0 +1,30 @@
+{
+ "n_signals": 341,
+ "n_t0_filled": 341,
+ "haircut_90": {
+  "mean_across_seeds": -0.2446,
+  "mean_range": [
+   -0.2685,
+   -0.2346
+  ],
+  "total_across_seeds": -74.82,
+  "total_range": [
+   -78.42,
+   -72.74
+  ],
+  "all_signal_total_across_seeds": -74.82
+ },
+ "haircut_80": {
+  "mean_across_seeds": -0.2701,
+  "mean_range": [
+   -0.29,
+   -0.2392
+  ],
+  "total_across_seeds": -73.21,
+  "total_range": [
+   -77.34,
+   -65.05
+  ],
+  "all_signal_total_across_seeds": -73.21
+ }
+}

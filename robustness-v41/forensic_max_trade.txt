@@ -1,0 +1,154 @@
+=== MAX TRADE FORENSIC: 2026-07-26 long (audit: entry 1881.03, stop 1878.0286, exit 1947.28) ===
+signal bar idx=27098 open=2026-07-26 08:30 O=1879.84 H=1881.38 L=1879.04 C=1881.03
+ATR(15m)=2.9014  stop = band_low - ATR; entry-stop dist=3.0014 (= ATR + entry premium above band low)
+1h window last bar: 2026-07-26 07:00 (qualifying bars end at signal close)
+1h last-3 swing highs: [1871.73, 1876.42, 1888.67]
+1h last-3 swing lows:  [1850.26, 1863.54, 1866.59]
+ATR(1h)=5.5836  0.5*ATR=2.7918
+high steps: [4.69, 12.25] (need >= 2.79 each)
+low steps:  [13.28, 3.05] (need >= 2.79 each)
+strict_dir = long
+levels at signal (8):
+  support     line=1855.99 band=(1854.27,1857.65) touches=9
+  resistance  line=1857.91 band=(1857.91,1859.41) touches=3
+  support     line=1863.68 band=(1863.54,1864.06) touches=3
+  support     line=1872.95 band=(1872.47,1873.77) touches=6
+  resistance  line=1875.26 band=(1875.26,1876.42) touches=4
+  resistance  line=1880.93 band=(1880.93,1881.17) touches=4
+  resistance  line=1883.17 band=(1883.17,1883.80) touches=4
+  resistance  line=1887.91 band=(1887.91,1888.67) touches=4
+implied traded band low = stop + ATR = 1880.9300
+traded level: {'kind': 'resistance', 'line': 1880.93, 'band': (1880.93, 1881.17), 'touches': 4, 'last_touch_idx': 369}  same-side 'above' contacts in last 96 bars: 2 (need >= 2)
+  all contacts: [(62, 'below'), (65, 'below'), (73, 'below'), (85, 'above'), (91, 'above')]
+5m window tail (last 6 bars, * = signal K for long):
+  idx=94 O=1879.57 H=1880.45 L=1879.46 C=1879.93  bull_engulf
+  idx=95 O=1879.94 H=1879.94 L=1879.55 C=1879.55  -
+  idx=96 O=1879.55 H=1879.84 L=1878.27 C=1879.83  hammer/bull_engulf
+  idx=97 O=1879.84 H=1880.2 L=1879.04 C=1880.19  -
+  idx=98 O=1880.2 H=1880.41 L=1879.88 C=1879.89  -
+  idx=99 O=1879.88 H=1881.38 L=1879.88 C=1881.03  bull_engulf
+fill bar 2026-07-26 08:45 O=1881.03 H=1881.76 L=1880.42 C=1880.57
+  limit=1881.03  T0 touch (L<=limit): True
+  T1 threshold=1880.0895 penetrated: False
+  T2 threshold=1879.1490 penetrated: False
+  fill-bar 5m bars:
+    2026-07-26 08:45 O=1881.03 H=1881.03 L=1880.42 C=1880.81  touches_limit=True
+    2026-07-26 08:50 O=1880.81 H=1881.71 L=1880.8 C=1881.67  touches_limit=True
+    2026-07-26 08:55 O=1881.67 H=1881.76 L=1880.56 C=1880.57  touches_limit=True
+exit path (bars from fill+1 until EMA exit; stop=1878.0286):
+  2026-07-26 09:00 C=1880.92 EMA50=1878.52 stop_hit=False
+  2026-07-26 09:15 C=1883.43 EMA50=1878.72 stop_hit=False
+  2026-07-26 09:30 C=1883.82 EMA50=1878.92 stop_hit=False
+  2026-07-26 09:45 C=1882.99 EMA50=1879.08 stop_hit=False
+  2026-07-26 10:00 C=1883.98 EMA50=1879.27 stop_hit=False
+  2026-07-26 10:15 C=1884.52 EMA50=1879.47 stop_hit=False
+  2026-07-26 10:30 C=1886.00 EMA50=1879.73 stop_hit=False
+  2026-07-26 10:45 C=1885.24 EMA50=1879.95 stop_hit=False
+  2026-07-26 11:00 C=1885.95 EMA50=1880.18 stop_hit=False
+  2026-07-26 11:15 C=1886.22 EMA50=1880.42 stop_hit=False
+  2026-07-26 11:30 C=1885.52 EMA50=1880.62 stop_hit=False
+  2026-07-26 11:45 C=1884.99 EMA50=1880.79 stop_hit=False
+  2026-07-26 12:00 C=1889.69 EMA50=1881.14 stop_hit=False
+  2026-07-26 12:15 C=1889.03 EMA50=1881.45 stop_hit=False
+  2026-07-26 12:30 C=1886.93 EMA50=1881.66 stop_hit=False
+  2026-07-26 12:45 C=1885.49 EMA50=1881.81 stop_hit=False
+  2026-07-26 13:00 C=1882.00 EMA50=1881.82 stop_hit=False
+  2026-07-26 13:15 C=1885.13 EMA50=1881.95 stop_hit=False
+  2026-07-26 13:30 C=1887.25 EMA50=1882.16 stop_hit=False
+  2026-07-26 13:45 C=1885.71 EMA50=1882.30 stop_hit=False
+  2026-07-26 14:00 C=1894.28 EMA50=1882.77 stop_hit=False
+  2026-07-26 14:15 C=1892.01 EMA50=1883.13 stop_hit=False
+  2026-07-26 14:30 C=1895.24 EMA50=1883.60 stop_hit=False
+  2026-07-26 14:45 C=1897.82 EMA50=1884.16 stop_hit=False
+  2026-07-26 15:00 C=1898.54 EMA50=1884.73 stop_hit=False
+  2026-07-26 15:15 C=1906.40 EMA50=1885.58 stop_hit=False
+  2026-07-26 15:30 C=1913.84 EMA50=1886.68 stop_hit=False
+  2026-07-26 15:45 C=1913.75 EMA50=1887.75 stop_hit=False
+  2026-07-26 16:00 C=1909.34 EMA50=1888.59 stop_hit=False
+  2026-07-26 16:15 C=1919.17 EMA50=1889.79 stop_hit=False
+  2026-07-26 16:30 C=1918.83 EMA50=1890.93 stop_hit=False
+  2026-07-26 16:45 C=1915.50 EMA50=1891.89 stop_hit=False
+  2026-07-26 17:00 C=1916.45 EMA50=1892.86 stop_hit=False
+  2026-07-26 17:15 C=1913.57 EMA50=1893.67 stop_hit=False
+  2026-07-26 17:30 C=1911.41 EMA50=1894.36 stop_hit=False
+  2026-07-26 17:45 C=1910.55 EMA50=1895.00 stop_hit=False
+  2026-07-26 18:00 C=1911.63 EMA50=1895.65 stop_hit=False
+  2026-07-26 18:15 C=1912.35 EMA50=1896.31 stop_hit=False
+  2026-07-26 18:30 C=1912.98 EMA50=1896.96 stop_hit=False
+  2026-07-26 18:45 C=1913.72 EMA50=1897.62 stop_hit=False
+  2026-07-26 19:00 C=1911.47 EMA50=1898.16 stop_hit=False
+  2026-07-26 19:15 C=1913.20 EMA50=1898.75 stop_hit=False
+  2026-07-26 19:30 C=1913.83 EMA50=1899.34 stop_hit=False
+  2026-07-26 19:45 C=1913.42 EMA50=1899.89 stop_hit=False
+  2026-07-26 20:00 C=1912.21 EMA50=1900.38 stop_hit=False
+  2026-07-26 20:15 C=1912.44 EMA50=1900.85 stop_hit=False
+  2026-07-26 20:30 C=1912.21 EMA50=1901.30 stop_hit=False
+  2026-07-26 20:45 C=1912.85 EMA50=1901.75 stop_hit=False
+  2026-07-26 21:00 C=1914.41 EMA50=1902.25 stop_hit=False
+  2026-07-26 21:15 C=1920.74 EMA50=1902.97 stop_hit=False
+  2026-07-26 21:30 C=1920.73 EMA50=1903.67 stop_hit=False
+  2026-07-26 21:45 C=1925.23 EMA50=1904.51 stop_hit=False
+  2026-07-26 22:00 C=1937.29 EMA50=1905.80 stop_hit=False
+  2026-07-26 22:15 C=1937.84 EMA50=1907.05 stop_hit=False
+  2026-07-26 22:30 C=1946.51 EMA50=1908.60 stop_hit=False
+  2026-07-26 22:45 C=1949.12 EMA50=1910.19 stop_hit=False
+  2026-07-26 23:00 C=1956.45 EMA50=1912.00 stop_hit=False
+  2026-07-26 23:15 C=1952.87 EMA50=1913.61 stop_hit=False
+  2026-07-26 23:30 C=1952.84 EMA50=1915.15 stop_hit=False
+  2026-07-26 23:45 C=1953.79 EMA50=1916.66 stop_hit=False
+  2026-07-27 00:00 C=1948.71 EMA50=1917.92 stop_hit=False
+  2026-07-27 00:15 C=1944.10 EMA50=1918.94 stop_hit=False
+  2026-07-27 00:30 C=1941.02 EMA50=1919.81 stop_hit=False
+  2026-07-27 00:45 C=1941.68 EMA50=1920.67 stop_hit=False
+  2026-07-27 01:00 C=1942.27 EMA50=1921.52 stop_hit=False
+  2026-07-27 01:15 C=1940.59 EMA50=1922.26 stop_hit=False
+  2026-07-27 01:30 C=1941.40 EMA50=1923.01 stop_hit=False
+  2026-07-27 01:45 C=1947.58 EMA50=1923.98 stop_hit=False
+  2026-07-27 02:00 C=1945.65 EMA50=1924.83 stop_hit=False
+  2026-07-27 02:15 C=1945.04 EMA50=1925.62 stop_hit=False
+  2026-07-27 02:30 C=1945.77 EMA50=1926.41 stop_hit=False
+  2026-07-27 02:45 C=1942.52 EMA50=1927.04 stop_hit=False
+  2026-07-27 03:00 C=1944.69 EMA50=1927.73 stop_hit=False
+  2026-07-27 03:15 C=1945.22 EMA50=1928.42 stop_hit=False
+  2026-07-27 03:30 C=1946.47 EMA50=1929.13 stop_hit=False
+  2026-07-27 03:45 C=1948.92 EMA50=1929.90 stop_hit=False
+  2026-07-27 04:00 C=1952.37 EMA50=1930.78 stop_hit=False
+  2026-07-27 04:15 C=1953.26 EMA50=1931.67 stop_hit=False
+  2026-07-27 04:30 C=1957.09 EMA50=1932.66 stop_hit=False
+  2026-07-27 04:45 C=1952.60 EMA50=1933.44 stop_hit=False
+  2026-07-27 05:00 C=1955.81 EMA50=1934.32 stop_hit=False
+  2026-07-27 05:15 C=1958.81 EMA50=1935.28 stop_hit=False
+  2026-07-27 05:30 C=1959.30 EMA50=1936.22 stop_hit=False
+  2026-07-27 05:45 C=1964.50 EMA50=1937.33 stop_hit=False
+  2026-07-27 06:00 C=1969.56 EMA50=1938.60 stop_hit=False
+  2026-07-27 06:15 C=1965.34 EMA50=1939.65 stop_hit=False
+  2026-07-27 06:30 C=1971.80 EMA50=1940.91 stop_hit=False
+  2026-07-27 06:45 C=1967.50 EMA50=1941.95 stop_hit=False
+  2026-07-27 07:00 C=1970.51 EMA50=1943.07 stop_hit=False
+  2026-07-27 07:15 C=1968.45 EMA50=1944.06 stop_hit=False
+  2026-07-27 07:30 C=1965.66 EMA50=1944.91 stop_hit=False
+  2026-07-27 07:45 C=1963.58 EMA50=1945.64 stop_hit=False
+  2026-07-27 08:00 C=1963.80 EMA50=1946.36 stop_hit=False
+  2026-07-27 08:15 C=1967.23 EMA50=1947.17 stop_hit=False
+  2026-07-27 08:30 C=1964.32 EMA50=1947.85 stop_hit=False
+  2026-07-27 08:45 C=1963.40 EMA50=1948.46 stop_hit=False
+  2026-07-27 09:00 C=1956.52 EMA50=1948.77 stop_hit=False
+  2026-07-27 09:15 C=1959.49 EMA50=1949.19 stop_hit=False
+  2026-07-27 09:30 C=1965.59 EMA50=1949.84 stop_hit=False
+  2026-07-27 09:45 C=1964.33 EMA50=1950.40 stop_hit=False
+  2026-07-27 10:00 C=1963.87 EMA50=1950.93 stop_hit=False
+  2026-07-27 10:15 C=1965.69 EMA50=1951.51 stop_hit=False
+  2026-07-27 10:30 C=1969.44 EMA50=1952.21 stop_hit=False
+  2026-07-27 10:45 C=1966.66 EMA50=1952.78 stop_hit=False
+  2026-07-27 11:00 C=1964.42 EMA50=1953.24 stop_hit=False
+  2026-07-27 11:15 C=1958.51 EMA50=1953.44 stop_hit=False
+  2026-07-27 11:30 C=1959.08 EMA50=1953.67 stop_hit=False
+  2026-07-27 11:45 C=1958.76 EMA50=1953.86 stop_hit=False
+  2026-07-27 12:00 C=1954.20 EMA50=1953.88 stop_hit=False
+  2026-07-27 12:15 C=1947.28 EMA50=1953.62 stop_hit=False <-- EMA EXIT
+data-quality checks:
+  zero/NaN scan: CLEAN
+  bar 2026-07-26 08:30: 15m O/H/L/C = 1879.84/1881.38/1879.04/1881.03  vs 5m-agg 1879.84/1881.38/1879.04/1881.03  match=True
+  bar 2026-07-26 08:45: 15m O/H/L/C = 1881.03/1881.76/1880.42/1880.57  vs 5m-agg 1881.03/1881.76/1880.42/1880.57  match=True
+  2026-07-26 UTC daily range: 93.97 (5.00% of entry)
+  median daily range prior 90d: 72.17 (n=90 days)

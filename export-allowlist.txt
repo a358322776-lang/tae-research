@@ -8,3 +8,4 @@
 #   ~/app/executor/trades-ledger.md -> trades/live-ledger.md（追加）
 #   ~/app/executor/events.jsonl -> 永不导出（含运行细节）
 #   ~/app/executor/.env / .env.live / state.json -> 永不导出
+#   goals/100u-200u/files/robustness-v41/*（除 data_cache/ 与 __pycache__/ 外） -> robustness-v41/（脚本、逐笔表、统计、审计报告；原始 K 线缓存不进仓，脚本可重取）
