@@ -1,0 +1,61 @@
+{
+ "seed": 20261026,
+ "quota": {
+  "2020": 6,
+  "2021": 4,
+  "2022": 6,
+  "2023": 4,
+  "2024": 5,
+  "2025": 5
+ },
+ "notes": [
+  "2020: quota 6, picked ['B002', 'B024', 'B017', 'B020', 'B019', 'B007'], winners_in_year=4",
+  "2021: quota 4, picked ['B041', 'B036', 'B028', 'B027'], winners_in_year=0",
+  "2022: quota 6, picked ['B064', 'B050', 'B066', 'B056', 'B045', 'B061'], winners_in_year=4",
+  "2023: quota 4, picked ['B072', 'B081', 'B069', 'B078'], winners_in_year=2",
+  "2024: quota 5, picked ['B094', 'B099', 'B089', 'B097', 'B102'], winners_in_year=5",
+  "2025: quota 5, picked ['B106', 'B113', 'B115', 'B108', 'B112'], winners_in_year=5"
+ ],
+ "swaps": [
+  "swap for slow coverage in 2020: out B007(mid) in B010(slow)",
+  "swap for slow coverage in 2020: out B019(mid) in B013(slow)"
+ ],
+ "tids": [
+  "B002",
+  "B010",
+  "B013",
+  "B017",
+  "B020",
+  "B024",
+  "B027",
+  "B028",
+  "B036",
+  "B041",
+  "B045",
+  "B050",
+  "B056",
+  "B061",
+  "B064",
+  "B066",
+  "B069",
+  "B072",
+  "B078",
+  "B081",
+  "B089",
+  "B094",
+  "B097",
+  "B099",
+  "B102",
+  "B106",
+  "B108",
+  "B112",
+  "B113",
+  "B115"
+ ],
+ "bucket_counts": {
+  "fast": 20,
+  "mid": 6,
+  "slow": 4
+ },
+ "winners": 7
+}
