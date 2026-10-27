@@ -1,0 +1,27 @@
+{
+ "window_15m": {
+  "first": "2020-01-01T00:00",
+  "last": "2026-10-25T08:30",
+  "n_bars": 238978,
+  "gaps": 0
+ },
+ "candidates": 514,
+ "sequences": 497,
+ "skipped_candidates": 17,
+ "outcome_counts": {
+  "reclaimed": 332,
+  "voided": 140,
+  "expired": 25
+ },
+ "e_outcome_counts_b": {
+  "missed": 56,
+  "filled": 190,
+  "no_reclaim": 165,
+  "e_timeout": 80,
+  "coincident_void": 6
+ },
+ "band_meta_mismatch": 0,
+ "reconciliation": {
+  "candidates_eq_sequences_plus_skipped": true
+ }
+}
