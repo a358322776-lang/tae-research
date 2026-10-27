@@ -1,0 +1,4 @@
+{
+ "freeze_time_utc": null,
+ "note": "Set freeze_time_utc when the user freezes definitions; analysis splits sequences by b0_time_utc vs freeze_time_utc into pre-freeze exploration data and post-freeze validation data."
+}

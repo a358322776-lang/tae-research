@@ -1,0 +1,10 @@
+static observer.py: PASS
+  - token only in docstring/comment (INFO): .env
+  - token only in docstring/comment (INFO): WhatsApp
+static dryrun_compare.py: PASS
+dynamic changed-outside-during-run: 0
+sentinel candidates.jsonl: age=47.0h PASS
+sentinel stitched_15m.npz: age=47.3h PASS
+sentinel tae-scanner.py: age=98.0h PASS
+sentinel tae-scanner-tradfi.py: age=98.0h PASS
+VERDICT: PASS
