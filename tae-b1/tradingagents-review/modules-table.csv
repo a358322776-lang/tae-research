@@ -1,0 +1,11 @@
+id,模块,对应 TradingAgents 源码位置,改造成本,工时量级,预期收益,风险与防呆,采用建议
+M1,结构化多空反证备忘录模板,tradingagents/agents/researchers/bull_researcher.py；bear_researcher.py；managers/research_manager.py；agents/schemas.py（ResearchPlan）,低,约 0.5 天文档工作（零代码）,把反证习惯固化为必填字段；强制填写“什么证据会推翻本结论”,模板数字栏只许填 TAE/观察系统算出的确定性数字；反方论据须引用可核查来源（文件路径＋行/表）否则视为未完成,第一阶段采用
+M2,假设-证伪登记表,tradingagents/backtest.py（run_backtest/summarize）；tradingagents/memory/log.py（条目格式与 resolution_date）,低,约 0.5 天文档工作（零代码）,服务 E2 主实验与 L1 的 H-A1/H-A2/H-B1/H-C1；检验前写死证伪线杜绝事后改口径,登记表冻结后不得改证伪线；检验数据必须来自前向观察系统；未结算假设单列“未决”不许并入通过或证伪,第一阶段采用
+M3,风险检查清单,tradingagents/agents/risk_mgmt/aggressive_debator.py；conservative_debator.py；neutral_debator.py（三视角结构）；graph/conditional_logic.py,低,约 0.5 天文档工作（零代码）,把风控辩论降维成可审计硬检查；清单项直接对应我方已有硬约束（2%/6%/10%、20x、冷却 2h）,清单是门不是参考：任一项未通过即暂停冻结流程；清单本身变更须用户批准并留档,第一阶段采用
+M4,点到点时间戳纪律补丁,tradingagents/dataflows/date_window.py（in_window/coverage_gap/withhold_*）,低,文档级（代码级须另行批准）,审计报告不再混淆“无数据”与“数据说无”；缺口与阴性结果分开统计,只改文档表述不动 observer 代码；任何代码级时间戳改动走正常批准流程,第二阶段采用（文档部分）
+M5,决策-结算日志格式,tradingagents/memory/log.py（store_decision/update_with_outcome/_resolved_tag）；memory/settlement.py（fetch_returns 窗口语义）,中,约 1–2 天小脚本（不动 TAE 核心，只读 TAE 输出）,审计结论可追溯到“当时已知什么”；复盘不再争论数据可见性,反思栏只填确定性数字不许 LLM 散文；日志 append-only 不得改写已结算条目；与 TAE 信号链物理隔离,第二阶段采用
+M6,结构化输出清洗思想,tradingagents/agents/schemas.py（_coerce_optional_float；render_* 系列）,低,未来用 LLM 写审计结论时复用（本次不实施）,LLM 结构化字段不再把“15%”读成 15、把区间读成单值,清洗只是格式层不替代价格校验；任何价格字段仍须与 TAE 确定性输出比对后才可用,暂缓（未来 LLM 审计时启用）
+M7,多智能体辩论流水线本身（LangGraph 图＋11 节点）,tradingagents/graph/setup.py；graph/conditional_logic.py；graph/trading_graph.py,高,接入＋模型＋评测至少数天；且需持续 LLM 成本,未验证：默认 1 轮辩论、错误相关性高；我方审计是人工＋确定性脚本,不需要 LLM 扮演多方,成本高收益未验证；辩论一致性不可重复计分,不采用
+M8,LLM 直接信号/仓位（Trader/PM 输出进执行）,tradingagents/agents/trader/trader.py；agents/managers/portfolio_manager.py；agents/schemas.py（TraderProposal/PortfolioDecision）,高（且触红线）,不评估工时,无：对方信号无校验、无成本模型、无 sizing 规则,红线：TAE 不读 LLM 输出；任何信号接入须用户另行批准且本报告不推荐,不采用
+M9,回测评分器（rating vs 5 日 alpha）,tradingagents/backtest.py（summarize/BacktestSummary）,低（仅报告纪律）,零代码（只借鉴报告格式）,借鉴“Hold/REVIEW 未评分须显式报告”的报告纪律,不得把方向打分读作收益；无成本、无仓位、无复利，不可作收益证据,仅借鉴报告纪律不采用评分器
+M10,LLM 调用量与 token 统计,tradingagents/cli/stats_handler.py（StatsCallbackHandler）,低,未来 LLM 审计时照搬计数器思想,预算先行：调用数与 token 量可观测,代码无美元定价表；美元成本须自行乘单价；预算超支即停,未来 LLM 审计时启用
