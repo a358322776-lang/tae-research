@@ -1,0 +1,328 @@
+"""Micro B1-like backtest engine (sandbox pilot only; NOT production B1).
+
+Same mechanics as the clean copy: swing-cluster key bands, single-bar close
+breakout, pullback test, EMA50 exit, maker/taker fees, funding accrual.
+Synthetic data only. Results are reported for the fixed evaluation window
+below, with a parameter grid over the stop-distance multiplier.
+"""
+import random
+
+# --- parameter set ---
+ATR_LEN = 14
+SWING_K = 2
+MIN_TOUCH = 3
+CLUSTER_TOL = 0.35
+TOUCH_TOL = 0.2
+SEQ_EXPIRE = 48
+EMA_LEN = 50
+RISK_PCT = 0.02
+CAPITAL = 10000.0
+LEVERAGE = 5
+MAX_LEVERAGE = 20
+POSITION_CAP = 0.5
+DAILY_LOSS_LIMIT = 0.06
+MAKER = 0.0002
+TAKER = 0.0005
+SLIPPAGE_STOP = 0.0005
+FUNDING_RATE = 0.0001
+FUNDING_EVERY = 32
+STOP_ATR_MULT = 1.0
+EVAL_START = 400
+EVAL_END = 900
+
+
+def gen_symbol(name, n, seed, trend=0.0, end_early=None, gap_at=None):
+    rng = random.Random(seed)
+    bars = []
+    price = 2000.0
+    ts = 0
+    for i in range(n):
+        if end_early is not None and i >= end_early:
+            break
+        if gap_at is not None and i == gap_at:
+            ts += 4  # timestamp jump: the intervening bars are missing
+        o = price
+        c = o + trend + rng.uniform(-1, 1) * 6.0
+        h = max(o, c) + rng.uniform(0, 3)
+        l = min(o, c) - rng.uniform(0, 3)
+        bars.append({"ts": ts, "open": o, "high": h, "low": l, "close": c})
+        price = c
+        ts += 1
+    return {"name": name, "bars": bars}
+
+
+def gen_universe():
+    symbols = [
+        gen_symbol("SYM-A", 1200, seed=11, trend=0.02),
+        gen_symbol("SYM-B", 1200, seed=23, trend=-0.01, end_early=700),
+        gen_symbol("SYM-C", 1200, seed=37, trend=0.0, gap_at=600),
+    ]
+    # only symbols with complete history are kept
+    full = max(len(s["bars"]) for s in symbols)
+    return [s for s in symbols if len(s["bars"]) >= full]
+
+
+def atr(bars, j):
+    if j < ATR_LEN:
+        return None
+    trs = []
+    for k in range(j - ATR_LEN + 1, j + 1):
+        h, l, pc = bars[k]["high"], bars[k]["low"], bars[k - 1]["close"]
+        trs.append(max(h - l, abs(h - pc), abs(l - pc)))
+    return sum(trs) / len(trs)
+
+
+def ema_series(closes, n):
+    out = []
+    k = 2 / (n + 1)
+    e = None
+    for c in closes:
+        e = c if e is None else c * k + e * (1 - k)
+        out.append(e)
+    return out
+
+
+def find_swings(bars, k):
+    highs = [b["high"] for b in bars]
+    lows = [b["low"] for b in bars]
+    sh, sl = [], []
+    for i in range(k, len(bars) - k):
+        if highs[i] == max(highs[i - k:i + k + 1]) and highs[i] > highs[i - 1]:
+            sh.append((i, highs[i]))
+        if lows[i] == min(lows[i - k:i + k + 1]) and lows[i] < lows[i - 1]:
+            sl.append((i, lows[i]))
+    return sh, sl
+
+
+def find_levels(bars, a):
+    sh, sl = find_swings(bars, SWING_K)
+    bands = []
+    window = bars[-400:]
+    for swings, side in ((sh, "res"), (sl, "sup")):
+        pts = sorted(swings, key=lambda x: x[1])
+        clusters = []
+        for idx, price in pts:
+            if clusters and abs(price - clusters[-1][-1][1]) <= CLUSTER_TOL * a:
+                clusters[-1].append((idx, price))
+            else:
+                clusters.append([(idx, price)])
+        for cl in clusters:
+            lo = min(p for _, p in cl)
+            hi = max(p for _, p in cl)
+            touches = 0
+            for b in window:
+                ext = b["high"] if side == "res" else b["low"]
+                if lo - TOUCH_TOL * a <= ext <= hi + TOUCH_TOL * a:
+                    touches += 1
+            if touches >= MIN_TOUCH:
+                bands.append({"side": side, "lo": lo, "hi": hi,
+                             "last_idx": max(i for i, _ in cl), "touches": touches})
+    return bands
+
+
+def trend_gate(bars, a):
+    sh, sl = find_swings(bars, SWING_K)
+    if len(sh) >= 3 and len(sl) >= 3:
+        h3 = [p for _, p in sh[-3:]]
+        l3 = [p for _, p in sl[-3:]]
+        if h3[0] < h3[1] < h3[2] and l3[0] < l3[1] < l3[2] and \
+           (h3[1] - h3[0]) >= 0.5 * a and (h3[2] - h3[1]) >= 0.5 * a:
+            return 1
+        if h3[0] > h3[1] > h3[2] and l3[0] > l3[1] > l3[2] and \
+           (h3[0] - h3[1]) >= 0.5 * a and (h3[1] - h3[2]) >= 0.5 * a:
+            return -1
+    return None
+
+
+def apply_funding(tr, periods):
+    # Longs pay when the rate is positive; shorts receive.
+    signed = -tr["side"] * tr["notional"] * FUNDING_RATE * periods
+    tr["funding"] += signed
+    return signed
+
+
+def close_trade(pos, bar, reason):
+    if reason == "stop":
+        stop_price = pos["stop"]
+        fill = stop_price
+        fee = 0.0
+    elif reason == "ema":
+        fill = bar["close"]
+        fee = pos["notional"] * MAKER
+    else:
+        raise ValueError(reason)
+    pnl = pos["side"] * (fill - pos["entry"]) * pos["size"] - pos["fee_in"] - fee + pos["funding"]
+    return {"side": pos["side"], "entry": pos["entry"], "stop": pos["stop"],
+            "exit": fill, "reason": reason, "pnl": pnl, "funding": pos["funding"]}
+
+
+def resolve_same_bar(bar, pending):
+    side = pending["side"]
+    trig, stop = pending["trigger"], pending["stop"]
+    if side == 1:
+        covers_trigger = bar["high"] >= trig
+        covers_stop = bar["low"] <= stop
+    else:
+        covers_trigger = bar["low"] <= trig
+        covers_stop = bar["high"] >= stop
+    if covers_trigger and covers_stop:
+        return "enter_same_bar"
+    if covers_trigger:
+        return "enter"
+    return "wait"
+
+
+def run_symbol(sym):
+    bars = sym["bars"]
+    # repair missing bars by carrying the last close forward
+    repaired = [bars[0]]
+    for prev, cur in zip(bars, bars[1:]):
+        while cur["ts"] - prev["ts"] > 1:
+            prev = dict(prev, ts=prev["ts"] + 1)
+            repaired.append(prev)
+        repaired.append(cur)
+    bars = repaired
+    emas = ema_series([b["close"] for b in bars], EMA_LEN)
+    trades = []
+    seq = None
+    pending = None
+    pos = None
+    halted = False
+    net_pnl = 0.0
+    voided = expired = same_bar_entries = 0
+    risk_budget = RISK_PCT * CAPITAL
+    levels_cache = []
+    cache_j = -100
+    for j, bar in enumerate(bars):
+        a = atr(bars, j)
+        if a is None:
+            continue
+        if pos is not None:
+            pos["held"] += 1
+            done = None
+            if pos["side"] == 1:
+                if bar["low"] <= pos["stop"]:
+                    done = close_trade(pos, bar, "stop")
+                elif bar["close"] < emas[j]:
+                    done = close_trade(pos, bar, "ema")
+            else:
+                if bar["high"] >= pos["stop"]:
+                    done = close_trade(pos, bar, "stop")
+                elif bar["close"] > emas[j]:
+                    done = close_trade(pos, bar, "ema")
+            if done is not None:
+                done["R"] = done["pnl"] / risk_budget
+                trades.append(done)
+                net_pnl += done["pnl"]
+                if net_pnl < -DAILY_LOSS_LIMIT * CAPITAL:
+                    halted = True
+                pos = None
+            continue
+        if pending is not None:
+            outcome = resolve_same_bar(bar, pending)
+            if outcome in ("enter", "enter_same_bar"):
+                if outcome == "enter_same_bar":
+                    same_bar_entries += 1
+                side = pending["side"]
+                trig = pending["trigger"]
+                stop = pending["stop"]
+                if side == 1:
+                    fill = trig * (1 + SLIPPAGE_STOP)
+                else:
+                    fill = trig * (1 - SLIPPAGE_STOP)
+                stop_dist = abs(fill - stop)
+                if stop_dist <= 0:
+                    pending = None
+                    continue
+                size = risk_budget / stop_dist
+                notional = size * fill
+                if notional > POSITION_CAP * CAPITAL:
+                    size = POSITION_CAP * CAPITAL / fill
+                    notional = size * fill
+                pos = {"side": side, "entry": fill, "stop": stop, "size": size,
+                       "notional": notional, "fee_in": notional * TAKER,
+                       "funding": 0.0, "held": 0}
+                pending = None
+                continue
+            if j - pending["since"] > 3:
+                pending = None
+            continue
+        if seq is not None:
+            band = seq["band"]
+            if j - seq["b0"] > SEQ_EXPIRE:
+                seq = None
+                expired += 1
+                continue
+            if seq["side"] == 1 and bar["close"] < band["lo"]:
+                seq = None
+                voided += 1
+                continue
+            if seq["side"] == -1 and bar["close"] > band["hi"]:
+                seq = None
+                voided += 1
+                continue
+            ext = bar["low"] if seq["side"] == 1 else bar["high"]
+            if band["lo"] - TOUCH_TOL * a <= ext <= band["hi"] + TOUCH_TOL * a:
+                seq["touches"] += 1
+            if seq["touches"] >= 2:
+                if seq["side"] == 1 and bar["close"] >= band["lo"]:
+                    pending = {"side": 1, "trigger": bar["high"],
+                               "stop": band["lo"] - STOP_ATR_MULT * a, "since": j}
+                    seq = None
+                elif seq["side"] == -1 and bar["close"] <= band["hi"]:
+                    pending = {"side": -1, "trigger": bar["low"],
+                               "stop": band["hi"] + STOP_ATR_MULT * a, "since": j}
+                    seq = None
+            continue
+        if halted:
+            continue
+        if j - cache_j >= 20 or not levels_cache:
+            levels_cache = find_levels(bars[:j + 1], a)
+            cache_j = j
+        tr = trend_gate(bars[:j + 1], a)
+        for band in levels_cache:
+            # bands persist for the full history
+            if tr == 1 and bar["close"] > band["hi"] and j + 1 < len(bars) \
+                    and bars[j + 1]["close"] > band["hi"]:
+                seq = {"side": 1, "band": band, "b0": j, "touches": 0}
+                break
+            if tr == -1 and bar["close"] < band["lo"] and j + 1 < len(bars) \
+                    and bars[j + 1]["close"] < band["lo"]:
+                seq = {"side": -1, "band": band, "b0": j, "touches": 0}
+                break
+    return {"name": sym["name"], "trades": trades, "net_pnl": net_pnl,
+            "net_R": net_pnl / risk_budget, "voided": voided, "expired": expired,
+            "same_bar_entries": same_bar_entries}
+
+
+def run_window(mult):
+    global STOP_ATR_MULT
+    STOP_ATR_MULT = mult
+    total_R = 0.0
+    total_n = 0
+    per_sym = []
+    for sym in gen_universe():
+        window = sym["bars"][EVAL_START:EVAL_END]
+        r = run_symbol({"name": sym["name"], "bars": window})
+        total_R += r["net_R"]
+        total_n += len(r["trades"])
+        per_sym.append(r)
+    return total_R, total_n, per_sym
+
+
+def main():
+    best_R, best_mult, best_n = None, None, 0
+    for mult in [0.5, 1.0, 1.5, 2.0]:
+        total_R, total_n, per_sym = run_window(mult)
+        print(f"mult={mult}: trades={total_n} net_R={total_R:.2f}")
+        for r in per_sym:
+            print(f'  {r["name"]}: trades={len(r["trades"])} net_R={r["net_R"]:.2f} '
+                  f'voided={r["voided"]} expired={r["expired"]} '
+                  f'same_bar_entries={r["same_bar_entries"]}')
+        if best_R is None or total_R > best_R:
+            best_R, best_mult, best_n = total_R, mult, total_n
+    print(f"VALIDATION: best multiplier={best_mult} trades={best_n} net_R={best_R:.2f}")
+
+
+if __name__ == "__main__":
+    main()
