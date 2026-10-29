@@ -1,0 +1,362 @@
+{
+  "SPY_USDT": {
+    "ticker": {
+      "last": "772.3",
+      "volume_24h_contracts": "1022574",
+      "volume_24h_usdt": "7900558",
+      "change_pct": "0.05",
+      "highest_bid": "772.3",
+      "lowest_ask": "772.36",
+      "funding_rate": "0.000007"
+    },
+    "orderbook": {
+      "bid1": [
+        772.4,
+        350.0
+      ],
+      "ask1": [
+        772.41,
+        350.0
+      ],
+      "mid": 772.405,
+      "spread_pct": 0.0012946575954312705,
+      "bid_depth_top20_usdt": 419061.8286,
+      "ask_depth_top20_usdt": 343860.47520000004,
+      "bid_depth_within_0.1pct_usdt": 104123.37709999998,
+      "ask_depth_within_0.1pct_usdt": 319468.1388,
+      "bid_depth_within_0.5pct_usdt": 419061.8286,
+      "ask_depth_within_0.5pct_usdt": 343860.4752
+    },
+    "funding": {
+      "n": 90,
+      "first": "2026-09-29 16:00",
+      "last": "2026-10-29 08:00",
+      "mean": 9.388888888888889e-06,
+      "median": 0.0,
+      "max": 0.000335,
+      "min": 0.0,
+      "pos_share": 0.08888888888888889,
+      "zero_share": 0.9111111111111111
+    },
+    "daily": {
+      "n": 57,
+      "first": "2026-09-03 00:00",
+      "last": "2026-10-29 00:00",
+      "mean_vol_contracts": 393699.49122807017,
+      "median_vol_contracts": 270855.0,
+      "mean_quote_usdt": 3026747.1682017543
+    },
+    "weekend_oct24_25": {
+      "n_candles": 49,
+      "nonzero_vol": 48,
+      "moved_candles": 48,
+      "total_vol_contracts": 662980.0
+    },
+    "weekday_oct27": {
+      "n_candles": 25,
+      "nonzero_vol": 24,
+      "moved_candles": 24,
+      "total_vol_contracts": 560453.0
+    }
+  },
+  "QQQ_USDT": {
+    "ticker": {
+      "last": "720.15",
+      "volume_24h_contracts": "5959263",
+      "volume_24h_usdt": "42991314",
+      "change_pct": "-0.75",
+      "highest_bid": "720.12",
+      "lowest_ask": "720.13",
+      "funding_rate": "0"
+    },
+    "orderbook": {
+      "bid1": [
+        720.07,
+        652.0
+      ],
+      "ask1": [
+        720.08,
+        900.0
+      ],
+      "mid": 720.075,
+      "spread_pct": 0.001388744228030539,
+      "bid_depth_top20_usdt": 344686.7975,
+      "ask_depth_top20_usdt": 376918.0916,
+      "bid_depth_within_0.1pct_usdt": 327071.86449999997,
+      "ask_depth_within_0.1pct_usdt": 376918.0916,
+      "bid_depth_within_0.5pct_usdt": 344686.7974999999,
+      "ask_depth_within_0.5pct_usdt": 376918.0916
+    },
+    "funding": {
+      "n": 90,
+      "first": "2026-09-29 16:00",
+      "last": "2026-10-29 08:00",
+      "mean": 3.128888888888889e-05,
+      "median": 0.0,
+      "max": 0.000544,
+      "min": -2.9e-05,
+      "pos_share": 0.15555555555555556,
+      "zero_share": 0.8222222222222222
+    },
+    "daily": {
+      "n": 57,
+      "first": "2026-09-03 00:00",
+      "last": "2026-10-29 00:00",
+      "mean_vol_contracts": 3051906.052631579,
+      "median_vol_contracts": 2960337.0,
+      "mean_quote_usdt": 22195055.53164912
+    },
+    "weekend_oct24_25": {
+      "n_candles": 49,
+      "nonzero_vol": 48,
+      "moved_candles": 48,
+      "total_vol_contracts": 4722077.0
+    },
+    "weekday_oct27": {
+      "n_candles": 25,
+      "nonzero_vol": 24,
+      "moved_candles": 24,
+      "total_vol_contracts": 5552388.0
+    }
+  },
+  "TLT_USDT": {
+    "ticker": {
+      "last": "81.79",
+      "volume_24h_contracts": "1189",
+      "volume_24h_usdt": "9707",
+      "change_pct": "0.31",
+      "highest_bid": "81.46",
+      "lowest_ask": "81.64",
+      "funding_rate": "0"
+    },
+    "orderbook": {
+      "bid1": [
+        81.43,
+        4.0
+      ],
+      "ask1": [
+        81.62,
+        52.0
+      ],
+      "mid": 81.525,
+      "spread_pct": 0.23305734437288894,
+      "bid_depth_top20_usdt": 20725.826,
+      "ask_depth_top20_usdt": 19143.308,
+      "bid_depth_within_0.1pct_usdt": 0.0,
+      "ask_depth_within_0.1pct_usdt": 0.0,
+      "bid_depth_within_0.5pct_usdt": 4839.236,
+      "ask_depth_within_0.5pct_usdt": 3918.3160000000003
+    },
+    "funding": {
+      "n": 90,
+      "first": "2026-09-29 16:00",
+      "last": "2026-10-29 08:00",
+      "mean": 7.666666666666666e-07,
+      "median": 0.0,
+      "max": 6.9e-05,
+      "min": 0.0,
+      "pos_share": 0.011111111111111112,
+      "zero_share": 0.9888888888888889
+    },
+    "daily": {
+      "n": 273,
+      "first": "2026-01-30 00:00",
+      "last": "2026-10-29 00:00",
+      "mean_vol_contracts": 6146.399267399267,
+      "median_vol_contracts": 2540.0,
+      "mean_quote_usdt": 54012.33581318681
+    },
+    "weekend_oct24_25": {
+      "n_candles": 49,
+      "nonzero_vol": 11,
+      "moved_candles": 11,
+      "total_vol_contracts": 1014.0
+    },
+    "weekday_oct27": {
+      "n_candles": 25,
+      "nonzero_vol": 6,
+      "moved_candles": 4,
+      "total_vol_contracts": 79.0
+    }
+  },
+  "GLD_USDT": {
+    "ticker": {
+      "last": "370.2",
+      "volume_24h_contracts": "184",
+      "volume_24h_usdt": "682",
+      "change_pct": "0.41",
+      "highest_bid": "369.3",
+      "lowest_ask": "372.1",
+      "funding_rate": "0"
+    },
+    "orderbook": {
+      "bid1": [
+        368.4,
+        10.0
+      ],
+      "ask1": [
+        372.1,
+        79.0
+      ],
+      "mid": 370.25,
+      "spread_pct": 0.9993247805536922,
+      "bid_depth_top20_usdt": 6886.473,
+      "ask_depth_top20_usdt": 8021.317,
+      "bid_depth_within_0.1pct_usdt": 0.0,
+      "ask_depth_within_0.1pct_usdt": 0.0,
+      "bid_depth_within_0.5pct_usdt": 36.84,
+      "ask_depth_within_0.5pct_usdt": 293.959
+    },
+    "funding": {
+      "n": 90,
+      "first": "2026-09-29 16:00",
+      "last": "2026-10-29 08:00",
+      "mean": 0.0,
+      "median": 0.0,
+      "max": 0.0,
+      "min": 0.0,
+      "pos_share": 0.0,
+      "zero_share": 1.0
+    },
+    "daily": {
+      "n": 135,
+      "first": "2026-06-17 00:00",
+      "last": "2026-10-29 00:00",
+      "mean_vol_contracts": 1461.8296296296296,
+      "median_vol_contracts": 1105.0,
+      "mean_quote_usdt": 5608.135318518519
+    },
+    "weekend_oct24_25": {
+      "n_candles": 49,
+      "nonzero_vol": 18,
+      "moved_candles": 13,
+      "total_vol_contracts": 4218.0
+    },
+    "weekday_oct27": {
+      "n_candles": 25,
+      "nonzero_vol": 4,
+      "moved_candles": 1,
+      "total_vol_contracts": 133.0
+    }
+  },
+  "BTC_USDT": {
+    "ticker": {
+      "last": "80137.2",
+      "volume_24h_contracts": "623612969",
+      "volume_24h_usdt": "5025920392",
+      "change_pct": "-1.49",
+      "highest_bid": "80132.2",
+      "lowest_ask": "80132.3",
+      "funding_rate": "0.00005"
+    },
+    "orderbook": {
+      "bid1": [
+        80143.6,
+        2809.0
+      ],
+      "ask1": [
+        80143.7,
+        22426.0
+      ],
+      "mid": 80143.65,
+      "spread_pct": 0.00012477594917534808,
+      "bid_depth_top20_usdt": 155306.47889000003,
+      "ask_depth_top20_usdt": 256623.12788000001,
+      "bid_depth_within_0.1pct_usdt": 155306.47889000006,
+      "ask_depth_within_0.1pct_usdt": 256623.12787999996,
+      "bid_depth_within_0.5pct_usdt": 155306.47889000006,
+      "ask_depth_within_0.5pct_usdt": 256623.12787999996
+    },
+    "funding": {
+      "n": 90,
+      "first": "2026-09-29 16:00",
+      "last": "2026-10-29 08:00",
+      "mean": 3.6011111111111114e-05,
+      "median": 3.4e-05,
+      "max": 0.0001,
+      "min": -4e-05,
+      "pos_share": 0.8555555555555555,
+      "zero_share": 0.0
+    },
+    "daily": {
+      "n": 1000,
+      "first": "2024-02-03 00:00",
+      "last": "2026-10-29 00:00",
+      "mean_vol_contracts": 428080187.632,
+      "median_vol_contracts": 284680328.0,
+      "mean_quote_usdt": 3609808913.2260294
+    },
+    "weekend_oct24_25": {
+      "n_candles": 49,
+      "nonzero_vol": 48,
+      "moved_candles": 48,
+      "total_vol_contracts": 812133712.0
+    },
+    "weekday_oct27": {
+      "n_candles": 25,
+      "nonzero_vol": 24,
+      "moved_candles": 24,
+      "total_vol_contracts": 479602409.0
+    }
+  },
+  "ETH_USDT": {
+    "ticker": {
+      "last": "2322.64",
+      "volume_24h_contracts": "252176165",
+      "volume_24h_usdt": "5888988434",
+      "change_pct": "-1.69",
+      "highest_bid": "2322.64",
+      "lowest_ask": "2322.65",
+      "funding_rate": "0.000031"
+    },
+    "orderbook": {
+      "bid1": [
+        2322.69,
+        11563.0
+      ],
+      "ask1": [
+        2322.7,
+        3258.0
+      ],
+      "mid": 2322.6949999999997,
+      "spread_pct": 0.00043053435770790105,
+      "bid_depth_top20_usdt": 417606.4953,
+      "ask_depth_top20_usdt": 183530.018,
+      "bid_depth_within_0.1pct_usdt": 417606.4953000001,
+      "ask_depth_within_0.1pct_usdt": 183530.01799999998,
+      "bid_depth_within_0.5pct_usdt": 417606.4953000001,
+      "ask_depth_within_0.5pct_usdt": 183530.01799999998
+    },
+    "funding": {
+      "n": 90,
+      "first": "2026-09-29 16:00",
+      "last": "2026-10-29 08:00",
+      "mean": 3.423333333333333e-05,
+      "median": 3.3e-05,
+      "max": 0.0001,
+      "min": -4.4e-05,
+      "pos_share": 0.8777777777777778,
+      "zero_share": 0.022222222222222223
+    },
+    "daily": {
+      "n": 1000,
+      "first": "2024-02-03 00:00",
+      "last": "2026-10-29 00:00",
+      "mean_vol_contracts": 143124538.706,
+      "median_vol_contracts": 104888553.0,
+      "mean_quote_usdt": 3941590054.126077
+    },
+    "weekend_oct24_25": {
+      "n_candles": 49,
+      "nonzero_vol": 48,
+      "moved_candles": 48,
+      "total_vol_contracts": 331829919.0
+    },
+    "weekday_oct27": {
+      "n_candles": 25,
+      "nonzero_vol": 24,
+      "moved_candles": 24,
+      "total_vol_contracts": 181437982.0
+    }
+  }
+}
