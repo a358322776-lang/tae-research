@@ -1,0 +1,178 @@
+{
+  "SPY": {
+    "source": "Yahoo chart API (period1/period2 分段, interval=1d)",
+    "symbol": "SPY",
+    "first": "1993-01-29",
+    "last": "2026-10-28",
+    "bars": 8495,
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "adjclose"
+    ],
+    "adjclose_present": true,
+    "null_close": 0,
+    "null_adjclose": 0,
+    "zero_volume_bars": 0,
+    "gaps_over_4d": 3,
+    "gap_list": [
+      {
+        "from": "2001-09-10",
+        "to": "2001-09-17",
+        "gap_days": 7.0
+      },
+      {
+        "from": "2006-12-29",
+        "to": "2007-01-03",
+        "gap_days": 5.0
+      },
+      {
+        "from": "2012-10-26",
+        "to": "2012-10-31",
+        "gap_days": 5.0
+      }
+    ]
+  },
+  "QQQ": {
+    "source": "Yahoo chart API (period1/period2 分段, interval=1d)",
+    "symbol": "QQQ",
+    "first": "1999-03-10",
+    "last": "2026-10-28",
+    "bars": 6953,
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "adjclose"
+    ],
+    "adjclose_present": true,
+    "null_close": 0,
+    "null_adjclose": 0,
+    "zero_volume_bars": 0,
+    "gaps_over_4d": 3,
+    "gap_list": [
+      {
+        "from": "2001-09-10",
+        "to": "2001-09-17",
+        "gap_days": 7.0
+      },
+      {
+        "from": "2006-12-29",
+        "to": "2007-01-03",
+        "gap_days": 5.0
+      },
+      {
+        "from": "2012-10-26",
+        "to": "2012-10-31",
+        "gap_days": 5.0
+      }
+    ]
+  },
+  "TLT": {
+    "source": "Yahoo chart API (period1/period2 分段, interval=1d)",
+    "symbol": "TLT",
+    "first": "2002-07-30",
+    "last": "2026-10-28",
+    "bars": 6102,
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "adjclose"
+    ],
+    "adjclose_present": true,
+    "null_close": 0,
+    "null_adjclose": 0,
+    "zero_volume_bars": 0,
+    "gaps_over_4d": 2,
+    "gap_list": [
+      {
+        "from": "2006-12-29",
+        "to": "2007-01-03",
+        "gap_days": 5.0
+      },
+      {
+        "from": "2012-10-26",
+        "to": "2012-10-31",
+        "gap_days": 5.0
+      }
+    ]
+  },
+  "GLD": {
+    "source": "Yahoo chart API (period1/period2 分段, interval=1d)",
+    "symbol": "GLD",
+    "first": "2004-11-18",
+    "last": "2026-10-28",
+    "bars": 5520,
+    "fields": [
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "adjclose"
+    ],
+    "adjclose_present": true,
+    "null_close": 0,
+    "null_adjclose": 0,
+    "zero_volume_bars": 0,
+    "gaps_over_4d": 2,
+    "gap_list": [
+      {
+        "from": "2006-12-29",
+        "to": "2007-01-03",
+        "gap_days": 5.0
+      },
+      {
+        "from": "2012-10-26",
+        "to": "2012-10-31",
+        "gap_days": 5.0
+      }
+    ]
+  },
+  "BTCUSDT": {
+    "source": "币安镜像 fapi/v1/klines (interval=1d, startTime 分页)",
+    "symbol": "BTCUSDT",
+    "first": "2019-09-08",
+    "last": "2026-10-29",
+    "bars": 2609,
+    "fields": [
+      "open_time",
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "close_time"
+    ],
+    "missing_calendar_days": 0,
+    "missing_list": [],
+    "duplicate_days": 0
+  },
+  "ETHUSDT": {
+    "source": "币安镜像 fapi/v1/klines (interval=1d, startTime 分页)",
+    "symbol": "ETHUSDT",
+    "first": "2019-11-27",
+    "last": "2026-10-29",
+    "bars": 2529,
+    "fields": [
+      "open_time",
+      "open",
+      "high",
+      "low",
+      "close",
+      "volume",
+      "close_time"
+    ],
+    "missing_calendar_days": 0,
+    "missing_list": [],
+    "duplicate_days": 0
+  }
+}
