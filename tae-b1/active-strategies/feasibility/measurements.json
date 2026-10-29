@@ -1,0 +1,684 @@
+{
+ "generated_utc": "2026-10-29T00:55:02Z",
+ "source": "https://www.binance.com/fapi/v1 mirror (public endpoints)",
+ "klines": {
+  "XAUUSDT": {
+   "1h": {
+    "symbol": "XAUUSDT",
+    "interval": "1h",
+    "pages": 6,
+    "earliest": "2025-12-11T08:00:00Z",
+    "latest_closed": "2026-10-28T23:00:00Z",
+    "total_bars": 7720,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 7720,
+    "atr_pct_median_365d": 0.3412829087277429,
+    "atr_pct_median_all_retained": 0.3412829087277429,
+    "breakout_events_365d": {
+     "up": 414,
+     "down": 334,
+     "total": 748
+    },
+    "session_stats_365d": {
+     "sessions": 230,
+     "clear_drive_sessions": 123,
+     "clear_share_pct": 53.47826086956522,
+     "note": "sessions counted on weekdays only for XAU/QQQ; all days for ETH/BTC. Drive = 16:00 close vs 14:00 open."
+    },
+    "weekend_flat_pct_1h": 0.04528985507246377,
+    "weekend_bars_1h": 2208
+   },
+   "30m": {
+    "symbol": "XAUUSDT",
+    "interval": "30m",
+    "pages": 11,
+    "earliest": "2025-12-11T08:00:00Z",
+    "latest_closed": "2026-10-29T00:00:00Z",
+    "total_bars": 15441,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 15441,
+    "atr_pct_median_365d": 0.22829096031380994,
+    "atr_pct_median_all_retained": 0.22829096031380994
+   }
+  },
+  "QQQUSDT": {
+   "30m": {
+    "symbol": "QQQUSDT",
+    "interval": "30m",
+    "pages": 7,
+    "earliest": "2026-04-06T13:30:00Z",
+    "latest_closed": "2026-10-29T00:00:00Z",
+    "total_bars": 9862,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 9862,
+    "atr_pct_median_365d": 0.16598123289334393,
+    "atr_pct_median_all_retained": 0.16598123289334393
+   },
+   "1h": {
+    "symbol": "QQQUSDT",
+    "interval": "1h",
+    "pages": 4,
+    "earliest": "2026-04-06T13:00:00Z",
+    "latest_closed": "2026-10-28T23:00:00Z",
+    "total_bars": 4931,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 4931,
+    "atr_pct_median_365d": 0.2557642307260355,
+    "atr_pct_median_all_retained": 0.2557642307260355,
+    "breakout_events_365d": {
+     "up": 360,
+     "down": 217,
+     "total": 577
+    },
+    "session_stats_365d": {
+     "sessions": 148,
+     "clear_drive_sessions": 90,
+     "clear_share_pct": 60.810810810810814,
+     "note": "sessions counted on weekdays only for XAU/QQQ; all days for ETH/BTC. Drive = 16:00 close vs 14:00 open."
+    },
+    "weekend_flat_pct_1h": 0.0,
+    "weekend_bars_1h": 1392
+   }
+  },
+  "ETHUSDT": {
+   "1h": {
+    "symbol": "ETHUSDT",
+    "interval": "1h",
+    "pages": 41,
+    "earliest": "2019-11-27T07:00:00Z",
+    "latest_closed": "2026-10-28T23:00:00Z",
+    "total_bars": 60665,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 17519,
+    "atr_pct_median_365d": 0.8026671802483979,
+    "atr_pct_median_all_retained": 0.9088466850889761,
+    "breakout_events_365d": {
+     "up": 294,
+     "down": 305,
+     "total": 599
+    },
+    "session_stats_365d": {
+     "sessions": 365,
+     "clear_drive_sessions": 165,
+     "clear_share_pct": 45.205479452054796,
+     "note": "sessions counted on weekdays only for XAU/QQQ; all days for ETH/BTC. Drive = 16:00 close vs 14:00 open."
+    },
+    "weekend_flat_pct_1h": 0.0,
+    "weekend_bars_1h": 4992
+   },
+   "30m": {
+    "symbol": "ETHUSDT",
+    "interval": "30m",
+    "pages": 81,
+    "earliest": "2019-11-27T07:30:00Z",
+    "latest_closed": "2026-10-29T00:00:00Z",
+    "total_bars": 121330,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 35039,
+    "atr_pct_median_365d": 0.5359764529396469,
+    "atr_pct_median_all_retained": 0.614477744818969
+   }
+  },
+  "BTCUSDT": {
+   "1h": {
+    "symbol": "BTCUSDT",
+    "interval": "1h",
+    "pages": 42,
+    "earliest": "2019-09-08T17:00:00Z",
+    "latest_closed": "2026-10-28T23:00:00Z",
+    "total_bars": 62575,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 17519,
+    "atr_pct_median_365d": 0.5901355158909669,
+    "atr_pct_median_all_retained": 0.5872690276732546,
+    "breakout_events_365d": {
+     "up": 364,
+     "down": 381,
+     "total": 745
+    },
+    "session_stats_365d": {
+     "sessions": 365,
+     "clear_drive_sessions": 176,
+     "clear_share_pct": 48.21917808219178,
+     "note": "sessions counted on weekdays only for XAU/QQQ; all days for ETH/BTC. Drive = 16:00 close vs 14:00 open."
+    },
+    "weekend_flat_pct_1h": 0.0,
+    "weekend_bars_1h": 4992
+   },
+   "30m": {
+    "symbol": "BTCUSDT",
+    "interval": "30m",
+    "pages": 84,
+    "earliest": "2019-09-08T17:30:00Z",
+    "latest_closed": "2026-10-29T00:00:00Z",
+    "total_bars": 125150,
+    "gap_missing_bars": 0,
+    "gap_events": [],
+    "retained_bars": 35039,
+    "atr_pct_median_365d": 0.39537550158451945,
+    "atr_pct_median_all_retained": 0.3948087895928658
+   }
+  }
+ },
+ "funding": {
+  "ETHUSDT": {
+   "count": 7480,
+   "earliest": "2020-01-01T00:00:00Z",
+   "latest": "2026-10-29T00:00:00Z",
+   "mean_pct": 0.012533549732620322,
+   "median_pct": 0.009840000000000002,
+   "abs_mean_pct": 0.01451433449197861,
+   "extreme_pos_365d": 0,
+   "extreme_neg_365d": 0,
+   "extreme_total_365d": 0,
+   "records_365d": 1095,
+   "by_year": {
+    "2020": {
+     "n": 1098,
+     "pos_ext": 177,
+     "neg_ext": 1
+    },
+    "2021": {
+     "n": 1095,
+     "pos_ext": 241,
+     "neg_ext": 1
+    },
+    "2022": {
+     "n": 1095,
+     "pos_ext": 0,
+     "neg_ext": 9
+    },
+    "2023": {
+     "n": 1095,
+     "pos_ext": 5,
+     "neg_ext": 0
+    },
+    "2024": {
+     "n": 1098,
+     "pos_ext": 25,
+     "neg_ext": 0
+    },
+    "2025": {
+     "n": 1095,
+     "pos_ext": 0,
+     "neg_ext": 0
+    },
+    "2026": {
+     "n": 904,
+     "pos_ext": 0,
+     "neg_ext": 0
+    }
+   }
+  },
+  "BTCUSDT": {
+   "count": 7480,
+   "earliest": "2020-01-01T00:00:00Z",
+   "latest": "2026-10-29T00:00:00Z",
+   "mean_pct": 0.010628282754010695,
+   "median_pct": 0.00891,
+   "abs_mean_pct": 0.012417621256684492,
+   "extreme_pos_365d": 0,
+   "extreme_neg_365d": 0,
+   "extreme_total_365d": 0,
+   "records_365d": 1095,
+   "by_year": {
+    "2020": {
+     "n": 1098,
+     "pos_ext": 103,
+     "neg_ext": 7
+    },
+    "2021": {
+     "n": 1095,
+     "pos_ext": 200,
+     "neg_ext": 3
+    },
+    "2022": {
+     "n": 1095,
+     "pos_ext": 0,
+     "neg_ext": 2
+    },
+    "2023": {
+     "n": 1095,
+     "pos_ext": 2,
+     "neg_ext": 0
+    },
+    "2024": {
+     "n": 1098,
+     "pos_ext": 24,
+     "neg_ext": 0
+    },
+    "2025": {
+     "n": 1095,
+     "pos_ext": 0,
+     "neg_ext": 0
+    },
+    "2026": {
+     "n": 904,
+     "pos_ext": 0,
+     "neg_ext": 0
+    }
+   }
+  },
+  "XAUUSDT": {
+   "count": 1930,
+   "earliest": "2025-12-11T08:00:00Z",
+   "latest": "2026-10-29T00:00:00Z",
+   "mean_pct": 0.0057952787564766834,
+   "median_pct": 0.0,
+   "abs_mean_pct": 0.010599739896373056,
+   "extreme_pos_365d": 66,
+   "extreme_neg_365d": 22,
+   "extreme_total_365d": 88,
+   "records_365d": 1930,
+   "by_year": {
+    "2025": {
+     "n": 124,
+     "pos_ext": 10,
+     "neg_ext": 0
+    },
+    "2026": {
+     "n": 1806,
+     "pos_ext": 56,
+     "neg_ext": 22
+    }
+   }
+  },
+  "QQQUSDT": {
+   "count": 641,
+   "earliest": "2026-04-03T08:00:00Z",
+   "latest": "2026-10-29T00:00:00Z",
+   "mean_pct": 0.0011667145085803435,
+   "median_pct": 0.0,
+   "abs_mean_pct": 0.011220530421216849,
+   "extreme_pos_365d": 17,
+   "extreme_neg_365d": 14,
+   "extreme_total_365d": 31,
+   "records_365d": 641,
+   "by_year": {
+    "2026": {
+     "n": 641,
+     "pos_ext": 17,
+     "neg_ext": 14
+    }
+   }
+  }
+ },
+ "exchangeInfo": {
+  "BTCUSDT": {
+   "status": "TRADING",
+   "baseAsset": "BTC",
+   "quoteAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "filters": {
+    "PRICE_FILTER": {
+     "tickSize": "0.10",
+     "filterType": "PRICE_FILTER",
+     "maxPrice": "4529764",
+     "minPrice": "556.80"
+    },
+    "LOT_SIZE": {
+     "stepSize": "0.001",
+     "minQty": "0.001",
+     "maxQty": "1000",
+     "filterType": "LOT_SIZE"
+    },
+    "MARKET_LOT_SIZE": {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "0.001",
+     "stepSize": "0.001",
+     "maxQty": "120"
+    },
+    "MAX_NUM_ORDERS": {
+     "limit": 200,
+     "filterType": "MAX_NUM_ORDERS"
+    },
+    "MIN_NOTIONAL": {
+     "notional": "50",
+     "filterType": "MIN_NOTIONAL"
+    },
+    "PERCENT_PRICE": {
+     "multiplierUp": "1.0300",
+     "multiplierDecimal": "4",
+     "multiplierDown": "0.9700",
+     "filterType": "PERCENT_PRICE"
+    },
+    "POSITION_RISK_CONTROL": {
+     "positionControlSide": "NONE",
+     "filterType": "POSITION_RISK_CONTROL"
+    }
+   }
+  },
+  "ETHUSDT": {
+   "status": "TRADING",
+   "baseAsset": "ETH",
+   "quoteAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "filters": {
+    "PRICE_FILTER": {
+     "tickSize": "0.01",
+     "maxPrice": "306177",
+     "filterType": "PRICE_FILTER",
+     "minPrice": "39.86"
+    },
+    "LOT_SIZE": {
+     "filterType": "LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "10000",
+     "stepSize": "0.001"
+    },
+    "MARKET_LOT_SIZE": {
+     "minQty": "0.001",
+     "stepSize": "0.001",
+     "filterType": "MARKET_LOT_SIZE",
+     "maxQty": "2000"
+    },
+    "MAX_NUM_ORDERS": {
+     "limit": 200,
+     "filterType": "MAX_NUM_ORDERS"
+    },
+    "MIN_NOTIONAL": {
+     "notional": "20",
+     "filterType": "MIN_NOTIONAL"
+    },
+    "PERCENT_PRICE": {
+     "multiplierUp": "1.0300",
+     "multiplierDown": "0.9700",
+     "filterType": "PERCENT_PRICE",
+     "multiplierDecimal": "4"
+    },
+    "POSITION_RISK_CONTROL": {
+     "positionControlSide": "NONE",
+     "filterType": "POSITION_RISK_CONTROL"
+    }
+   }
+  },
+  "XAUUSDT": {
+   "status": "TRADING",
+   "baseAsset": "XAU",
+   "quoteAsset": "USDT",
+   "pricePrecision": 2,
+   "quantityPrecision": 3,
+   "filters": {
+    "PRICE_FILTER": {
+     "tickSize": "0.01",
+     "maxPrice": "200000",
+     "minPrice": "0.01",
+     "filterType": "PRICE_FILTER"
+    },
+    "LOT_SIZE": {
+     "maxQty": "10000",
+     "filterType": "LOT_SIZE",
+     "minQty": "0.001",
+     "stepSize": "0.001"
+    },
+    "MARKET_LOT_SIZE": {
+     "filterType": "MARKET_LOT_SIZE",
+     "minQty": "0.001",
+     "maxQty": "1000",
+     "stepSize": "0.001"
+    },
+    "MAX_NUM_ORDERS": {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    "MIN_NOTIONAL": {
+     "filterType": "MIN_NOTIONAL",
+     "notional": "5"
+    },
+    "PERCENT_PRICE": {
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0200",
+     "multiplierDown": "0.9800",
+     "multiplierDecimal": "4"
+    },
+    "POSITION_RISK_CONTROL": {
+     "filterType": "POSITION_RISK_CONTROL",
+     "positionControlSide": "NONE"
+    }
+   }
+  },
+  "QQQUSDT": {
+   "status": "TRADING",
+   "baseAsset": "QQQ",
+   "quoteAsset": "USDT",
+   "pricePrecision": 5,
+   "quantityPrecision": 2,
+   "filters": {
+    "PRICE_FILTER": {
+     "filterType": "PRICE_FILTER",
+     "tickSize": "0.01000",
+     "maxPrice": "20000",
+     "minPrice": "0.01000"
+    },
+    "LOT_SIZE": {
+     "filterType": "LOT_SIZE",
+     "minQty": "0.01",
+     "stepSize": "0.01",
+     "maxQty": "20000"
+    },
+    "MARKET_LOT_SIZE": {
+     "filterType": "MARKET_LOT_SIZE",
+     "stepSize": "0.01",
+     "maxQty": "2000",
+     "minQty": "0.01"
+    },
+    "MAX_NUM_ORDERS": {
+     "filterType": "MAX_NUM_ORDERS",
+     "limit": 200
+    },
+    "MIN_NOTIONAL": {
+     "notional": "5",
+     "filterType": "MIN_NOTIONAL"
+    },
+    "PERCENT_PRICE": {
+     "multiplierDecimal": "4",
+     "multiplierDown": "0.9700",
+     "filterType": "PERCENT_PRICE",
+     "multiplierUp": "1.0300"
+    },
+    "POSITION_RISK_CONTROL": {
+     "positionControlSide": "NONE",
+     "filterType": "POSITION_RISK_CONTROL"
+    }
+   }
+  }
+ },
+ "errors": [],
+ "funding_full_fetch": true,
+ "funding_dist": {
+  "ETHUSDT": {
+   "count": 7480,
+   "interval_diff_hours": {
+    "7": 2287,
+    "8": 5192
+   },
+   "pct": {
+    "p50": 0.009847,
+    "p90": 0.030425999999999998,
+    "p95": 0.055576,
+    "p99": 0.133961,
+    "max": 0.375,
+    "min": -0.356332
+   },
+   "counts_003_by_year": {
+    "2020": {
+     "n": 1098,
+     "pos": 279,
+     "neg": 1
+    },
+    "2021": {
+     "n": 1095,
+     "pos": 370,
+     "neg": 2
+    },
+    "2022": {
+     "n": 1095,
+     "pos": 0,
+     "neg": 16
+    },
+    "2023": {
+     "n": 1095,
+     "pos": 26,
+     "neg": 0
+    },
+    "2024": {
+     "n": 1098,
+     "pos": 82,
+     "neg": 0
+    },
+    "2025": {
+     "n": 1095,
+     "pos": 0,
+     "neg": 0
+    },
+    "2026": {
+     "n": 904,
+     "pos": 0,
+     "neg": 1
+    }
+   },
+   "counts_003_365d": {
+    "pos": 0,
+    "neg": 1,
+    "n": 1095
+   },
+   "mean_2025_pct": 0.0045011132420091325,
+   "mean_2026_pct": 0.0019373219026548674
+  },
+  "BTCUSDT": {
+   "count": 7480,
+   "interval_diff_hours": {
+    "7": 2287,
+    "8": 5192
+   },
+   "pct": {
+    "p50": 0.008911,
+    "p90": 0.022797,
+    "p95": 0.046117,
+    "p99": 0.10599800000000001,
+    "max": 0.3,
+    "min": -0.3
+   },
+   "counts_003_by_year": {
+    "2020": {
+     "n": 1098,
+     "pos": 195,
+     "neg": 18
+    },
+    "2021": {
+     "n": 1095,
+     "pos": 329,
+     "neg": 6
+    },
+    "2022": {
+     "n": 1095,
+     "pos": 0,
+     "neg": 4
+    },
+    "2023": {
+     "n": 1095,
+     "pos": 18,
+     "neg": 0
+    },
+    "2024": {
+     "n": 1098,
+     "pos": 73,
+     "neg": 0
+    },
+    "2025": {
+     "n": 1095,
+     "pos": 0,
+     "neg": 0
+    },
+    "2026": {
+     "n": 904,
+     "pos": 0,
+     "neg": 0
+    }
+   },
+   "counts_003_365d": {
+    "pos": 0,
+    "neg": 0,
+    "n": 1095
+   },
+   "mean_2025_pct": 0.004681669406392694,
+   "mean_2026_pct": 0.0028069303097345132
+  },
+  "XAUUSDT": {
+   "count": 1930,
+   "interval_diff_hours": {
+    "3": 272,
+    "4": 1656,
+    "8": 1
+   },
+   "pct": {
+    "p50": 0.0,
+    "p90": 0.014656,
+    "p95": 0.032302,
+    "p99": 0.147115,
+    "max": 0.5,
+    "min": -0.33504300000000004
+   },
+   "counts_003_by_year": {
+    "2025": {
+     "n": 124,
+     "pos": 21,
+     "neg": 2
+    },
+    "2026": {
+     "n": 1806,
+     "pos": 83,
+     "neg": 42
+    }
+   },
+   "counts_003_365d": {
+    "pos": 104,
+    "neg": 44,
+    "n": 1930
+   },
+   "mean_2025_pct": 0.013219346774193548,
+   "mean_2026_pct": 0.0052855420819490585
+  },
+  "QQQUSDT": {
+   "count": 641,
+   "interval_diff_hours": {
+    "0": 3,
+    "1": 11,
+    "4": 3,
+    "7": 85,
+    "8": 538
+   },
+   "pct": {
+    "p50": 0.0,
+    "p90": 0.019149,
+    "p95": 0.030435999999999998,
+    "p99": 0.10197800000000001,
+    "max": 0.18622,
+    "min": -0.506799
+   },
+   "counts_003_by_year": {
+    "2026": {
+     "n": 641,
+     "pos": 35,
+     "neg": 17
+    }
+   },
+   "counts_003_365d": {
+    "pos": 35,
+    "neg": 17,
+    "n": 641
+   },
+   "mean_2025_pct": null,
+   "mean_2026_pct": 0.0011667145085803435
+  }
+ }
+}
