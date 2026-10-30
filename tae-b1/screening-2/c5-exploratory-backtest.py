@@ -1,18 +1,18 @@
-"""C5 exploratory backtest, single approved run (revision 7 rules).
+"""C5 exploratory backtest, single approved run (revision 8 rules).
 
 APPROVAL STATUS (2026-10-30): the v1 execution approval ("批了") was
-SUPERSEDED the same day by the user's postponement instruction. NO
-backtest has been run. This script MUST NOT be executed except
---verify-only until a fresh execution approval (application v2) is
-given AND the direction-reference fork below is decided.
-Rules: freeze draft v0.7-DRAFT. Exploration window 2020-01-01..2026-10-30.
+SUPERSEDED the same day by the user's postponement instruction, and
+application v2 is still awaiting approval. NO backtest has been run.
+This script MUST NOT execute a returns run until EXECUTION_APPROVED
+is set True with the fresh v2 approval recorded. --verify-only runs
+gates only and never touches returns data.
+Rules: freeze draft v0.8-DRAFT. Exploration window 2020-01-01..2026-10-30.
 NO tuning, NO freeze, NO live trading. One run; bug-fix re-runs must be
 recorded, never silent.
 
-OPEN FORK (undecided, must be fixed before any run): the draft defines
-ONE direction per event but does not name which asset's event-day move
-defines it (BTC reference / per-leg own asset / two-asset mean).
-DIRECTION_REFERENCE = None refuses any run until the user decides.
+DIRECTION (decided by user 2026-10-30, revision 8): PER_LEG — each leg
+uses its own asset's event-day direction; the noise filter applies
+per leg; the placebo draws per (event, leg), BTC leg before ETH leg.
 
 Usage:
   python3 c5-exploratory-backtest.py --verify-only   # gates only, no run
@@ -34,8 +34,11 @@ SEED = 20261030
 FEE_RT = 0.001
 STOP_PCT = 0.02
 CUTOFF_DATE = "2026-10-30"
-# Direction reference: None = UNDECIDED, any run is refused.
-DIRECTION_REFERENCE = None
+# Direction rule, decided by the user 2026-10-30 (revision 8).
+DIRECTION_REFERENCE = "PER_LEG"
+# Execution approval gate: False refuses ANY returns run. Set True only
+# with the fresh v2 approval recorded (approver + UTC timestamp).
+EXECUTION_APPROVED = False
 TIERS = {
     "low": {"slip": 0.00025, "spread": 0.0001},
     "central": {"slip": 0.0005, "spread": 0.0003},
@@ -189,7 +192,8 @@ def valid_bar(b):
 
 
 def run_tier(tier, events, bars, funding, directions):
-    """Run one cost tier. directions: dict (date, series) -> +1/-1.
+    """Run one cost tier. directions: dict (date, series, symbol) -> +1/-1
+    (revision 8: each leg uses its own asset's event-day direction).
 
     Returns (trades, logs) where trades carry per-leg detail and net
     intervals; logs carry no-trade / skipped / excluded lists.
@@ -199,7 +203,6 @@ def run_tier(tier, events, bars, funding, directions):
     busy_until = None
     trades, logs = [], {"no_trade": [], "skipped": [], "excluded": []}
     for (ev_date, series) in sorted(events):
-        direction = directions[(ev_date, series)]
         d = date.fromisoformat(ev_date)
         dm1 = (d - timedelta(days=1)).isoformat()
         legs = {}
@@ -225,18 +228,23 @@ def run_tier(tier, events, bars, funding, directions):
         if not ok:
             logs["excluded"].append((ev_date, series, "missing/invalid"))
             continue
-        move = legs["BTCUSDT"][0]  # reference-asset move: the noise
-        # filter uses the same reference as the direction (rev 7: the
-        # reference itself is fixed by DIRECTION_REFERENCE before a run)
-        if abs(move) < cfg["roundtrip"]:
-            logs["no_trade"].append((ev_date, series, round(move, 6)))
+        # per-leg noise filter (revision 8): a leg trades only if its
+        # OWN |event-day move| >= the tier's round-trip cost
+        passing = [sym for sym in ("BTCUSDT", "ETHUSDT")
+                   if abs(legs[sym][0]) >= cfg["roundtrip"]]
+        for sym in ("BTCUSDT", "ETHUSDT"):
+            if sym not in passing:
+                logs["no_trade"].append(
+                    (ev_date, series, sym, round(legs[sym][0], 6)))
+        if not passing:
             continue
         entry_day = d + timedelta(days=2)
         if busy_until is not None and entry_day <= busy_until:
             logs["skipped"].append((ev_date, series))
             continue
         leg_results = []
-        for sym in ("BTCUSDT", "ETHUSDT"):
+        for sym in passing:
+            direction = directions[(ev_date, series, sym)]
             _, days = legs[sym]
             entry_open = days[0][0]
             typ, day_idx, entry_px, exit_px, gross = run_leg_prices(
@@ -259,7 +267,8 @@ def run_tier(tier, events, bars, funding, directions):
             net_lo = gross - FEE_RT - max(s_lo, s_hi)
             net_hi = gross - FEE_RT - min(s_lo, s_hi)
             leg_results.append({
-                "symbol": sym, "exit_type": typ, "exit_day": day_idx,
+                "symbol": sym, "direction": direction,
+                "exit_type": typ, "exit_day": day_idx,
                 "entry_px": entry_px, "exit_px": exit_px, "gross": gross,
                 "fund_lo": min(s_lo, s_hi), "fund_hi": max(s_lo, s_hi),
                 "net_lo": net_lo, "net_hi": net_hi,
@@ -269,11 +278,11 @@ def run_tier(tier, events, bars, funding, directions):
             logs["excluded"].append((ev_date, series, "funding-coverage"))
             continue
         busy_until = d + timedelta(days=5)
-        net_lo = sum(l["net_lo"] for l in leg_results) / 2
-        net_hi = sum(l["net_hi"] for l in leg_results) / 2
+        n = len(leg_results)
+        net_lo = sum(l["net_lo"] for l in leg_results) / n
+        net_hi = sum(l["net_hi"] for l in leg_results) / n
         trades.append({
-            "date": ev_date, "series": series, "direction": direction,
-            "move": move, "legs": leg_results,
+            "date": ev_date, "series": series, "legs": leg_results,
             "net_lo": net_lo, "net_hi": net_hi,
             "contrib_lo": 0.10 * sum(l["net_lo"] for l in leg_results),
             "contrib_hi": 0.10 * sum(l["net_hi"] for l in leg_results),
@@ -296,11 +305,12 @@ def main():
     if "--verify-only" in sys.argv:
         print("Verify-only mode: no backtest run.")
         return
-    if DIRECTION_REFERENCE is None:
+    if not EXECUTION_APPROVED:
         raise SystemExit(
-            "REFUSED: direction reference undecided; no run until the "
-            "user fixes which asset's event-day move defines the "
-            "shared direction (see header).")
+            "REFUSED: no fresh execution approval (application v2 "
+            "still awaiting approval); the script refuses any returns "
+            "run until approval is recorded by setting "
+            "EXECUTION_APPROVED = True.")
     t0 = time.time()
     bars = {s: load_json(os.path.join(DATA, f"klines_{s}.json"))
             for s in ("BTCUSDT", "ETHUSDT")}
@@ -314,13 +324,11 @@ def main():
     rows = list(csv.DictReader(open(os.path.join(
         BASE, "c5-event-calendar-draft.csv"))))
     events = [(r["date"], r["series"]) for r in rows]
-    # strategy directions from the reference asset's event-day closes
-    # (DIRECTION_REFERENCE, fixed before any run). Cutoff-incomplete
+    # Per-leg directions (revision 8, decided by user 2026-10-30):
+    # each leg uses its own asset's event-day move. Cutoff-incomplete
     # events (window extends past CUTOFF_DATE) are listed separately
     # as pending and NEVER backfilled with post-cutoff data.
-    if DIRECTION_REFERENCE == "BTC":
-        ref_sym = "BTCUSDT"
-    else:
+    if DIRECTION_REFERENCE != "PER_LEG":
         raise SystemExit(
             "REFUSED: unsupported DIRECTION_REFERENCE="
             f"{DIRECTION_REFERENCE!r}")
@@ -338,15 +346,20 @@ def main():
         if not complete:
             pending.append((ev_date, series))
             continue
-        prev_c = bars[ref_sym][(d - timedelta(days=1)).isoformat()][3]
-        ev_c = bars[ref_sym][ev_date][3]
-        directions[(ev_date, series)] = 1 if ev_c > prev_c else -1
-    evaluated = sorted(directions)
-    # placebo stream: one draw per evaluated event, chronological order
+        for sym in ("BTCUSDT", "ETHUSDT"):
+            prev_c = bars[sym][(d - timedelta(days=1)).isoformat()][3]
+            ev_c = bars[sym][ev_date][3]
+            directions[(ev_date, series, sym)] = \
+                1 if ev_c > prev_c else -1
+    evaluated = sorted({(d0, s0) for (d0, s0, _) in directions})
+    # placebo stream: one draw per (event, leg), chronological events,
+    # BTC leg before ETH leg within each event
     rng = random.Random(SEED)
     placebo_dirs = {}
     for key in evaluated:
-        placebo_dirs[key] = 1 if rng.random() >= 0.5 else -1
+        for sym in ("BTCUSDT", "ETHUSDT"):
+            placebo_dirs[(key[0], key[1], sym)] = \
+                1 if rng.random() >= 0.5 else -1
     results = {"run_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
                                            time.gmtime()),
                "seed": SEED, "window": ["2020-01-01", "2026-10-30"],
@@ -372,7 +385,7 @@ def main():
             days = [tuple(bars[sym][(d + timedelta(days=i)).isoformat()])
                     for i in range(2, 6)]
             typ, day_idx, e_px, x_px, gross0 = run_leg_prices(
-                t["direction"], days[0][0], days, 0.0)
+                leg["direction"], days[0][0], days, 0.0)
             assert typ == leg["exit_type"] and day_idx == leg["exit_day"]
             diffs.append(((leg["net_lo"] + leg["net_hi"]) / 2)
                          - (gross0 - FEE_RT
@@ -444,7 +457,7 @@ def build_equity(trades, bars, funding):
                 v_hi = leg["net_hi"]
             else:
                 close = b[day][3]
-                mtm = t["direction"] * (close - leg["entry_px"]) \
+                mtm = leg["direction"] * (close - leg["entry_px"]) \
                     / leg["entry_px"] - FEE_RT
                 # funding accrued through end of day (exact: settlements
                 # already observed; the interval only bites on the stop day,
@@ -454,7 +467,7 @@ def build_equity(trades, bars, funding):
                 day_end_ms = utc_ms(cur.year, cur.month, cur.day) + 86400000
                 acc = sum(r for (ts, r) in funding[sym]
                           if entry_ms < ts < day_end_ms)
-                signed = t["direction"] * acc
+                signed = leg["direction"] * acc
                 v_lo = v_hi = mtm - signed
             vals["lo"] += 0.10 * v_lo
             vals["hi"] += 0.10 * v_hi
