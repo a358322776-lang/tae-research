@@ -11,6 +11,9 @@ Changelog (2026-10-30, revision 2):
   stop boundary rules (entry-day order, same-day priority, gap,
   slippage/fees/funding, post-stop termination), and the C3
   conditional-liquidation / 2x boundary arithmetic.
+- REVISION 3 (2026-10-30): net accounting changed to price-embedded
+  single-count slippage (see c5-revision-3-execution-accounting.md);
+  the old separate-slippage net helper is replaced, not kept alongside.
 """
 
 R = 0.0418  # 3M T-bill, 2026-10-29
@@ -73,10 +76,13 @@ def simulate_leg(entry_close, stop_pct, days, side="long", slippage=0.001):
     raise AssertionError("no exit reached")
 
 
-def net_return(gross, fee, slippage_cost, funding):
-    """Net = gross - all costs; a missing component voids the report."""
-    assert None not in (gross, fee, slippage_cost, funding)
-    return gross - fee - slippage_cost - funding
+def net_from_prices(entry_px, exit_px, direction, fee, funding):
+    """Revision 3 single-count accounting: slippage lives in prices only.
+
+    direction: +1 long, -1 short. funding is signed (long pays +, short -).
+    """
+    assert None not in (entry_px, exit_px, direction, fee, funding)
+    return direction * (exit_px - entry_px) / entry_px - fee - funding
 
 
 def liq_price_1x_with_fee(p0, entry_fee_rate, mm_rate):
@@ -172,8 +178,16 @@ eth = simulate_leg(100, 0.02, [(101, 99.0, 102, 103)], "long")
 check("C5 stopped leg frozen, other leg runs to close; event obs is the mean",
       btc[0] == "stop" and eth[0] == "close"
       and approx((btc[1] + eth[1]) / 2, (98 * 0.999 + 103) / 2, 1e-9))
-check("C5 net deducts fee, slippage and funding, all three",
-      approx(net_return(0.02, 0.001, 0.001, 0.0005), 0.0175, 1e-9))
+entry_px = 103 * 1.0005
+exit_px = 106 * (1 - 0.0005)
+net_slipped = net_from_prices(entry_px, exit_px, 1, 0.001, 0.0004)
+net_unslipped = net_from_prices(103, 106, 1, 0.001, 0.0004)
+check("C5 revision 3 net: slippage embedded in prices, fee+funding separate",
+      approx(net_slipped,
+             (exit_px - entry_px) / entry_px - 0.001 - 0.0004, 1e-12))
+check("C5 revision 3 single-count guard: slip impact ~ -0.10%, not -0.20%",
+      approx(net_slipped - net_unslipped, -0.001, 1e-4)
+      and not approx(net_slipped - net_unslipped, -0.002, 1e-4))
 
 # --- C3 (revision 1): COIN-M residual delta + worked example ---
 check("C3 COIN-M 1x net delta equals spot holding (never neutral)",
