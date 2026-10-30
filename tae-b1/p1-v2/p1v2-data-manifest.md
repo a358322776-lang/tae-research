@@ -57,3 +57,47 @@
 本地留档、不进仓：`p1v2-yahoo-data.json`（原始价格序列，可重取）、
 `p1v2-design-draft.md`（设计草案，冻结版已取代其裁决部分）、
 `p1v2-admission-standards.md`（准入标准建议稿）、聚焦／全量普查文件。
+
+## 数据版本与校验（2026-10-30 补记，用户要求）
+
+> 原始数据文件本身暂不上传 GitHub（用户 2026-10-30 确认）；本节是
+> 未来复现的检测基准，不是复现保证。Yahoo 可能修订历史数据
+> （公司行动修正、数据更正），届时重拉的数据与本节校验值不一致
+> 即视为数据版本漂移——须以本地留档的原文件为准，不得静默用新数据
+> 覆盖旧结果；原结果的逐字节复现依赖本地原文件，不依赖 Yahoo 重拉。
+
+- **数据版本**：Yahoo Finance chart API v8（无 Yahoo 侧数据集版本号；
+  版本标识 ＝ 下载时间 ＋ 文件 SHA256）。
+- **下载时间**：2026-10-29 12:48 UTC（北京时间 20:48 CST），
+  由拉取脚本写入 `p1v2-yahoo-data.json` 的 meta 字段。
+- **请求口径**：`v8/finance/chart/{ticker}?period1=1262304000（2010-01-01 UTC）
+  &period2=下载时当前时间 &interval=1d &events=div,split`。
+- **复权口径**：adjclose 字段为 Yahoo 提供的分红／拆分调整后价格
+  （Yahoo 侧调整方法，不由我方二次调整；我方未对价格做任何额外复权、
+  平滑或插值；缺失 adjclose 的日期直接丢弃，缺失数见上表，全部为 0）。
+- **价格取整**：拉取脚本将 adjclose 存为 4 位小数（round 4）；
+  校验值按存盘后的“日期:4 位小数价格”行计算，与文件内容一致。
+- **文件校验值**：`p1v2-yahoo-data.json`（1,177,610 字节）
+  SHA256 ＝ `1ac6b7537122cbc859059e0408c98998423baf43d6a52475c6eec5ce41d88e38`。
+- **分标的序列校验值**（SHA256，规范字符串为按行 `日期:价格` 连接）：
+
+| 标的 | 序列 SHA256 |
+|---|---|
+| AAPL | `1a3e5b4bae7ab95492ae3f8884f1431477a85d555516667037405f97ef024cc1` |
+| MSFT | `3d1301b6b51dea848ea18d53d47ea9cc260c920004d13d0b23c22b5b5ac010df` |
+| NVDA | `104a8673eab8d2fedbb4e033d4a1f90af185d60aba2f141637323762a83793f0` |
+| AMZN | `cfb63a631a268f3cd1d1ca8615cd3ac912d36e7a5bd614767ce85bce24bb842b` |
+| GOOGL | `a44c600ce3459d92b24bac7adf5a29eca7236117a0dcb26137c8c7924117483e` |
+| META | `bcc941d2bf663767e1334b363a1ff1762537f606bfbfeef52e074c2a39a3e069` |
+| TSLA | `017916cbf86e00d67036124a021b4d8f9c852fe611dd42c902b69750b26f466f` |
+| SNDK | `006b1a9a7789908a301ed233dd7c28723025e51dca3779b5d74872d314f7cbd4` |
+| MU | `3b1c677a4b7d8380908f7f952d1aba5ce357e8f81adbcfd4624129aff1498557` |
+| AVGO | `88123a72e87ff6590072ec10a9adcda5fc732b1d271473b1231e596370630d7a` |
+| PLTR | `fc87d6f9327877945d45cd30e044c26f7059fe20490eeeb847f18046bd58ee52` |
+| AMD | `0fe62f586c9dfde3cf17f8c56b557a86a3b1d978a78b0f1eefc75257cc4cf2e7` |
+| NFLX | `a157f3c92180ab778c7782c531ac2b8fe183b0c81b531c0ececf1deadeb33d91` |
+| SPY | `addec4c5408dc3a91fe60723071e0d46250cdda3cd2ec7771d12ad0fa600c818` |
+
+- **复现方法**：运行 `p1v2-fetch-yahoo.py`（须把 period2 固定为
+  2026-10-29 12:48 UTC 附近才能接近原窗口；即使如此，Yahoo 修订仍可
+  导致差异——差异以本节校验值为准判定，不得反向改写本节）。
