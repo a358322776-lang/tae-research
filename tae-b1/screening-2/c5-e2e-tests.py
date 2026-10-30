@@ -39,38 +39,17 @@ def passes_noise_filter(event_move, roundtrip_cost):
     return abs(event_move) >= roundtrip_cost
 
 
-def match_funding(exit_day_idx, rates):
-    """Match historical settlement records in (entry, exit].
-
-    Entry is D+2 00:00 UTC (t=0); settlements at 00/08/16 UTC daily.
-    Returns the total rate, or None if any required settlement record
-    is missing (missing records exclude the leg, never fill with 0).
-    Full hold to D+5 close (exit day 3) matches 12 settlements.
-    """
-    bound_t = (exit_day_idx + 1) * 24
-    total = 0.0
-    t = 8
-    while t <= bound_t:
-        rate = rates.get(t)
-        if rate is None:
-            return None
-        total += rate
-        t += 8
-    return total
-
-
 def run_leg(direction_, entry_open, days, funding_per_day=FUND_DAY,
-            exec_cost=EXEC, stop_pct=STOP_PCT, fee_rt=FEE_RT,
-            funding_rates=None):
+            exec_cost=EXEC, stop_pct=STOP_PCT, fee_rt=FEE_RT):
     """Run one leg. days = (open, low, high, close) for D+2..D+5.
 
     days[0] is the entry day: its open is the entry reference, and its
     low/high are post-entry prices that CAN trigger the stop.
     Later days: gap check first, then intraday, then scheduled close exit.
     Stop level is measured from the ACTUAL filled entry price.
-    funding_rates, when given, maps settlement hour t (since D+2 00:00)
-    to the historical rate for this leg's asset; funding is then matched
-    per settlement and a missing record returns None (leg excluded).
+    Funding here is the scalar per-day approximation used only for the
+    price-mechanics cases; settlement-matched funding bounds are tested
+    separately by funding_bounds (revision 6).
     Returns dict with exit_type ('close'/'stop'/'stop-gap'), exit price,
     exit day index (0 = D+2), gross, funding days, funding, net.
     """
@@ -97,13 +76,7 @@ def run_leg(direction_, entry_open, days, funding_per_day=FUND_DAY,
             break
     if exit_px is None:
         raise AssertionError("no exit reached")
-    if funding_rates is not None:
-        matched = match_funding(day, funding_rates)
-        if matched is None:
-            return None
-        funding_signed = direction_ * matched
-    else:
-        funding_signed = direction_ * funding_per_day * (day + 1)
+    funding_signed = direction_ * funding_per_day * (day + 1)
     return _finish(direction_, entry_px, exit_px, typ, day,
                    day + 1, funding_signed, fee_rt)
 
@@ -141,23 +114,19 @@ def validate_leg(entry_open, days):
 def run_event(btc, eth):
     """One event observation = equal-weight mean of both legs' nets.
 
-    Each leg input is (direction, entry_open, days) or
-    (direction, entry_open, days, funding_rates). Any missing or invalid
-    leg excludes the whole event (no interpolation, no 'not triggered'
-    default). Returns (mean_net, committed_contribution, details) or None.
+    Each leg input is (direction, entry_open, days). Any missing or
+    invalid leg excludes the whole event (no interpolation, no
+    'not triggered' default). Returns (mean_net, committed_contribution,
+    details) or None.
     """
     legs = []
     for leg in (btc, eth):
         if leg is None:
             return None
-        d, entry_open, days = leg[:3]
-        rates = leg[3] if len(leg) > 3 else None
+        d, entry_open, days = leg
         if not validate_leg(entry_open, days):
             return None
-        result = run_leg(d, entry_open, days, funding_rates=rates)
-        if result is None:
-            return None
-        legs.append(result)
+        legs.append(run_leg(d, entry_open, days))
     mean_net = sum(l["net"] for l in legs) / len(legs)
     contribution = 0.10 * sum(l["net"] for l in legs)  # 10% per leg
     return mean_net, contribution, legs
@@ -330,33 +299,65 @@ check("E2E invalid bar (High < Low) excludes the event",
 check("E2E D+2 open mismatch with the entry reference excludes the event",
       run_event((1, 105, SAFE_DAYS), (1, 104, SAFE_DAYS)) is None)
 
-# 17. Funding settlement matching per leg (revision 5, condition 2).
-RATES = {t: 0.0001 for t in range(8, 97, 8)}  # 12 settlements, full hold
-r = run_leg(1, 104, SAFE_DAYS, funding_rates=RATES)
-check("E2E full hold matches 12 settlements, not an average",
-      r is not None and approx(r["funding"], 0.0012, 1e-12))
-r = run_leg(1, 104, [SAFE_DAYS[0], (105, 99.0, 106, 105)] + SAFE_DAYS[2:],
-            funding_rates=RATES)
-check("E2E stop on D+3 matches only 6 settlements, nothing after",
-      r is not None and approx(r["funding"], 0.0006, 1e-12))
-r = run_leg(1, 104, [(104, 99.0, 105, 104)] + SAFE_DAYS[1:],
-            funding_rates=RATES)
-check("E2E stop on D+2 matches only 3 settlements",
-      r is not None and approx(r["funding"], 0.0003, 1e-12))
-short_days = [(104, 103, 105, 103), (103, 102, 104, 102),
-              (102, 101, 103, 101), (101, 100, 102, 100)]
-r = run_leg(-1, 104, short_days, funding_rates=RATES)
-check("E2E short leg receives funding (negative funding cost)",
-      r is not None and r["type"] == "close"
-      and approx(r["funding"], -0.0012, 1e-12))
-rates_gap = {t: v for t, v in RATES.items() if t != 32}
-check("E2E missing settlement record excludes the leg, never fills 0",
-      run_event((1, 104, SAFE_DAYS, rates_gap),
-                (1, 104, SAFE_DAYS, RATES)) is None)
-rates_eth = {t: 0.0002 for t in range(8, 97, 8)}
-ev = run_event((1, 104, SAFE_DAYS, RATES), (1, 104, SAFE_DAYS, rates_eth))
+# 17. Funding bounds from ACTUAL settlement records (revision 6).
+#     Revision 5's single-point stop-day-close cutoff is withdrawn:
+#     a stopped leg's funding is an interval, never a defaulted total.
+def funding_bounds(records, stop_day):
+    """Funding from actual settlement records (t in hours since D+2 00:00).
+
+    Close leg (stop_day None): exact sum over 0 < t < 96; the exit
+    boundary settlement at t=96 is excluded from the main value.
+    Stopped leg (stop_day i): (low, high) with low over 0 < t <= i*24
+    (certain: position held at the trigger day's open) and high over
+    0 < t < (i+1)*24 (nothing after the trigger day can count).
+    Returns None if any gap inside the coverage window exceeds 24h.
+    """
+    upper = 96 if stop_day is None else (stop_day + 1) * 24
+    window = [(t, r) for (t, r) in records if 0 < t < upper]
+    points = [0] + [t for (t, _) in window] + [upper]
+    if any(points[k + 1] - points[k] > 24
+           for k in range(len(points) - 1)):
+        return None
+    if stop_day is None:
+        return ("exact", sum(r for (_, r) in window))
+    low = sum(r for (t, r) in window if t <= stop_day * 24)
+    return ("interval", low, sum(r for (_, r) in window))
+
+
+STD = [(t, 0.0001) for t in range(8, 97, 8)]  # standard 8h grid, test data
+r = funding_bounds(STD, None)
+check("E2E close leg matches 11 certain settlements (boundary excluded)",
+      r[0] == "exact" and approx(r[1], 0.0011, 1e-12))
+r = funding_bounds(STD + [(96, 0.01)], None)
+check("E2E close leg excludes the exit-boundary settlement even if large",
+      r[0] == "exact" and approx(r[1], 0.0011, 1e-12))
+r = funding_bounds(STD, 0)
+check("E2E stop on D+2 gives funding interval [0, 2] settlements",
+      r[0] == "interval" and approx(r[1], 0.0, 1e-12)
+      and approx(r[2], 0.0002, 1e-12))
+r = funding_bounds(STD, 1)
+check("E2E stop on D+3 gives funding interval [3, 5] settlements",
+      r[0] == "interval" and approx(r[1], 0.0003, 1e-12)
+      and approx(r[2], 0.0005, 1e-12))
+r = funding_bounds(STD, 3)
+check("E2E stop on D+5 gives funding interval [9, 11] settlements",
+      r[0] == "interval" and approx(r[1], 0.0009, 1e-12)
+      and approx(r[2], 0.0011, 1e-12))
+_, lo, hi = funding_bounds(STD, 1)
+check("E2E short leg funding interval is the negated rate interval",
+      approx(-hi, -0.0005, 1e-12) and approx(-lo, -0.0003, 1e-12))
+irregular = [(t, 0.0001) for t in range(8, 97, 8) if t != 32]
+r = funding_bounds(irregular, None)
+check("E2E irregular records govern: a 2-settlement day counts 10, not 11",
+      r[0] == "exact" and approx(r[1], 0.0010, 1e-12))
+gapped = [(t, 0.0001) for t in range(8, 41, 8)] + \
+         [(t, 0.0001) for t in range(72, 97, 8)]
+check("E2E gap over 24h inside the window excludes the leg",
+      funding_bounds(gapped, None) is None)
+eth_std = [(t, 0.0002) for t in range(8, 97, 8)]
+r_btc = funding_bounds(STD, None)
+r_eth = funding_bounds(eth_std, None)
 check("E2E each leg uses its own asset funding history",
-      ev is not None and approx(ev[2][0]["funding"], 0.0012, 1e-12)
-      and approx(ev[2][1]["funding"], 0.0024, 1e-12))
+      approx(r_btc[1], 0.0011, 1e-12) and approx(r_eth[1], 0.0022, 1e-12))
 
 print("ALL C5 END-TO-END TESTS PASSED")

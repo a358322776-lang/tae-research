@@ -1,6 +1,7 @@
 === C5 test run log ===
-Date (CST): 2026-10-30 12:27:06
-Repo HEAD (pre-push): 1e0f283
+Date (CST): 2026-10-30 16:25:20
+Repo HEAD (pre-push): 36ccb19
+Note: supersedes the earlier 2026-10-30 run (55 items); revision 6 rewrote the funding section (33 e2e items).
 
 --- revision-unit-tests.py ---
 ok: C5 threshold 10pct central RT0.26 unfiltered = 1.75%
@@ -55,10 +56,13 @@ ok: E2E missing Low excludes the event, not a no-trigger close
 ok: E2E missing High excludes the event, not a no-trigger close
 ok: E2E invalid bar (High < Low) excludes the event
 ok: E2E D+2 open mismatch with the entry reference excludes the event
-ok: E2E full hold matches 12 settlements, not an average
-ok: E2E stop on D+3 matches only 6 settlements, nothing after
-ok: E2E stop on D+2 matches only 3 settlements
-ok: E2E short leg receives funding (negative funding cost)
-ok: E2E missing settlement record excludes the leg, never fills 0
+ok: E2E close leg matches 11 certain settlements (boundary excluded)
+ok: E2E close leg excludes the exit-boundary settlement even if large
+ok: E2E stop on D+2 gives funding interval [0, 2] settlements
+ok: E2E stop on D+3 gives funding interval [3, 5] settlements
+ok: E2E stop on D+5 gives funding interval [9, 11] settlements
+ok: E2E short leg funding interval is the negated rate interval
+ok: E2E irregular records govern: a 2-settlement day counts 10, not 11
+ok: E2E gap over 24h inside the window excludes the leg
 ok: E2E each leg uses its own asset funding history
 ALL C5 END-TO-END TESTS PASSED
