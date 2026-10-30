@@ -49,7 +49,7 @@ def run_leg(direction_, entry_open, days, funding_per_day=FUND_DAY,
     Stop level is measured from the ACTUAL filled entry price.
     Funding here is the scalar per-day approximation used only for the
     price-mechanics cases; settlement-matched funding bounds are tested
-    separately by funding_bounds (revision 6).
+    separately by funding_bounds (revisions 6-7).
     Returns dict with exit_type ('close'/'stop'/'stop-gap'), exit price,
     exit day index (0 = D+2), gross, funding days, funding, net.
     """
@@ -299,17 +299,22 @@ check("E2E invalid bar (High < Low) excludes the event",
 check("E2E D+2 open mismatch with the entry reference excludes the event",
       run_event((1, 105, SAFE_DAYS), (1, 104, SAFE_DAYS)) is None)
 
-# 17. Funding bounds from ACTUAL settlement records (revision 6).
+# 17. Funding bounds from ACTUAL settlement records (revisions 6-7).
 #     Revision 5's single-point stop-day-close cutoff is withdrawn:
 #     a stopped leg's funding is an interval, never a defaulted total.
+#     Revision 7: rates may be negative, so prefix sums need not be
+#     monotone; the interval is min/max over the whole set of possible
+#     cumulative totals, never the two endpoint sums.
 def funding_bounds(records, stop_day):
     """Funding from actual settlement records (t in hours since D+2 00:00).
 
     Close leg (stop_day None): exact sum over 0 < t < 96; the exit
     boundary settlement at t=96 is excluded from the main value.
-    Stopped leg (stop_day i): (low, high) with low over 0 < t <= i*24
-    (certain: position held at the trigger day's open) and high over
-    0 < t < (i+1)*24 (nothing after the trigger day can count).
+    Stopped leg (stop_day i): the trigger time inside day i is unknown,
+    so the cumulative funding actually paid is one of the prefix sums:
+    the total through the trigger day's open (00:00 settlement included)
+    and after each settlement inside the trigger day. Returns
+    ("interval", min(prefixes), max(prefixes)).
     Returns None if any gap inside the coverage window exceeds 24h.
     """
     upper = 96 if stop_day is None else (stop_day + 1) * 24
@@ -320,8 +325,14 @@ def funding_bounds(records, stop_day):
         return None
     if stop_day is None:
         return ("exact", sum(r for (_, r) in window))
-    low = sum(r for (t, r) in window if t <= stop_day * 24)
-    return ("interval", low, sum(r for (_, r) in window))
+    base = sum(r for (t, r) in window if t <= stop_day * 24)
+    prefixes = [base]
+    run = base
+    for (t, r) in window:
+        if stop_day * 24 < t < (stop_day + 1) * 24:
+            run += r
+            prefixes.append(run)
+    return ("interval", min(prefixes), max(prefixes))
 
 
 STD = [(t, 0.0001) for t in range(8, 97, 8)]  # standard 8h grid, test data
@@ -359,5 +370,41 @@ r_btc = funding_bounds(STD, None)
 r_eth = funding_bounds(eth_std, None)
 check("E2E each leg uses its own asset funding history",
       approx(r_btc[1], 0.0011, 1e-12) and approx(r_eth[1], 0.0022, 1e-12))
+
+# 18. Funding interval bounds with negative rates (revision 7).
+#     Bounds are min/max over the whole set of possible prefix totals,
+#     applied to ACTUAL net return with the direction sign; endpoint
+#     sums are not bounds when rates can be negative.
+def net_bounds(gross, fee, direction, lo, hi):
+    """Net-return interval from an unsigned funding interval (lo, hi)."""
+    s_lo, s_hi = direction * lo, direction * hi
+    return (gross - fee - max(s_lo, s_hi),
+            gross - fee - min(s_lo, s_hi))
+
+mixed = [(t, 0.0001) for t in (8, 16, 24)] + \
+        [(32, -0.0005), (40, 0.0001)] + \
+        [(t, 0.0001) for t in range(48, 97, 8)]
+r = funding_bounds(mixed, 1)
+check("REV7 mixed-sign stop day: bounds are prefix extremes, not endpoints",
+      r[0] == "interval" and approx(r[1], -0.0002, 1e-12)
+      and approx(r[2], 0.0003, 1e-12))
+check("REV7 interval contains every possible prefix total",
+      r[1] <= -0.0001 <= r[2] and r[1] <= 0.0003 <= r[2])
+neg = [(t, -0.0001) for t in range(8, 97, 8)]
+r = funding_bounds(neg, 0)
+check("REV7 all-negative stop day: bounds are [-0.0002, 0.0]",
+      r[0] == "interval" and approx(r[1], -0.0002, 1e-12)
+      and approx(r[2], 0.0, 1e-12))
+nlo, nhi = net_bounds(0.01, 0.001, -1, -0.0002, 0.0003)
+check("REV7 short leg: net bounds from signed funding extremes",
+      approx(nlo, 0.01 - 0.001 - 0.0002, 1e-12)
+      and approx(nhi, 0.01 - 0.001 + 0.0003, 1e-12))
+r = funding_bounds(neg, None)
+check("REV7 close leg with negative rates is the exact (negative) sum",
+      r[0] == "exact" and approx(r[1], -0.0011, 1e-12))
+gapped_neg = [(t, -0.0001) for t in range(8, 41, 8)] + \
+             [(t, -0.0001) for t in range(72, 97, 8)]
+check("REV7 gap over 24h excludes the leg even with negative rates",
+      funding_bounds(gapped_neg, None) is None)
 
 print("ALL C5 END-TO-END TESTS PASSED")
