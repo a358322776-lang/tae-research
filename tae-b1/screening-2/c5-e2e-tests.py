@@ -39,69 +39,125 @@ def passes_noise_filter(event_move, roundtrip_cost):
     return abs(event_move) >= roundtrip_cost
 
 
+def match_funding(exit_day_idx, rates):
+    """Match historical settlement records in (entry, exit].
+
+    Entry is D+2 00:00 UTC (t=0); settlements at 00/08/16 UTC daily.
+    Returns the total rate, or None if any required settlement record
+    is missing (missing records exclude the leg, never fill with 0).
+    Full hold to D+5 close (exit day 3) matches 12 settlements.
+    """
+    bound_t = (exit_day_idx + 1) * 24
+    total = 0.0
+    t = 8
+    while t <= bound_t:
+        rate = rates.get(t)
+        if rate is None:
+            return None
+        total += rate
+        t += 8
+    return total
+
+
 def run_leg(direction_, entry_open, days, funding_per_day=FUND_DAY,
-            exec_cost=EXEC, stop_pct=STOP_PCT, fee_rt=FEE_RT):
+            exec_cost=EXEC, stop_pct=STOP_PCT, fee_rt=FEE_RT,
+            funding_rates=None):
     """Run one leg. days = (open, low, high, close) for D+2..D+5.
 
     days[0] is the entry day: its open is the entry reference, and its
     low/high are post-entry prices that CAN trigger the stop.
     Later days: gap check first, then intraday, then scheduled close exit.
     Stop level is measured from the ACTUAL filled entry price.
+    funding_rates, when given, maps settlement hour t (since D+2 00:00)
+    to the historical rate for this leg's asset; funding is then matched
+    per settlement and a missing record returns None (leg excluded).
     Returns dict with exit_type ('close'/'stop'/'stop-gap'), exit price,
-    exit day index (0 = D+2), gross, funding days, net.
+    exit day index (0 = D+2), gross, funding days, funding, net.
     """
     assert direction_ in (1, -1)
     entry_px = entry_open * (1 + direction_ * exec_cost)
     stop = entry_px * (1 - direction_ * stop_pct)
+    exit_px = typ = day = None
     for i, (o, low, high, c) in enumerate(days):
-        funding_days = i + 1
         if i > 0:  # gap check only after the entry day
             if direction_ == 1 and o <= stop:
-                exit_px, typ = o * (1 - exec_cost), "stop-gap"
-            elif direction_ == -1 and o >= stop:
-                exit_px, typ = o * (1 + exec_cost), "stop-gap"
-            else:
-                exit_px, typ = None, None
-            if typ is not None:
-                return _finish(direction_, entry_px, exit_px, typ, i,
-                               funding_days, funding_per_day, fee_rt)
+                exit_px, typ, day = o * (1 - exec_cost), "stop-gap", i
+                break
+            if direction_ == -1 and o >= stop:
+                exit_px, typ, day = o * (1 + exec_cost), "stop-gap", i
+                break
         if direction_ == 1 and low <= stop:
-            return _finish(direction_, entry_px, stop * (1 - exec_cost),
-                           "stop", i, funding_days, funding_per_day, fee_rt)
+            exit_px, typ, day = stop * (1 - exec_cost), "stop", i
+            break
         if direction_ == -1 and high >= stop:
-            return _finish(direction_, entry_px, stop * (1 + exec_cost),
-                           "stop", i, funding_days, funding_per_day, fee_rt)
+            exit_px, typ, day = stop * (1 + exec_cost), "stop", i
+            break
         if i == len(days) - 1:
-            return _finish(direction_, entry_px, c * (1 - direction_ * exec_cost),
-                           "close", i, funding_days, funding_per_day, fee_rt)
-    raise AssertionError("no exit reached")
+            exit_px, typ, day = c * (1 - direction_ * exec_cost), "close", i
+            break
+    if exit_px is None:
+        raise AssertionError("no exit reached")
+    if funding_rates is not None:
+        matched = match_funding(day, funding_rates)
+        if matched is None:
+            return None
+        funding_signed = direction_ * matched
+    else:
+        funding_signed = direction_ * funding_per_day * (day + 1)
+    return _finish(direction_, entry_px, exit_px, typ, day,
+                   day + 1, funding_signed, fee_rt)
 
 
 def _finish(direction_, entry_px, exit_px, typ, day, funding_days,
-            funding_per_day, fee_rt):
+            funding_signed, fee_rt):
     gross = direction_ * (exit_px - entry_px) / entry_px
-    funding_signed = direction_ * funding_per_day * funding_days
     net = gross - fee_rt - funding_signed
     return {"type": typ, "exit_px": exit_px, "day": day,
             "entry_px": entry_px, "gross": gross,
-            "funding_days": funding_days, "net": net}
+            "funding_days": funding_days, "funding": funding_signed,
+            "net": net}
+
+
+def validate_leg(entry_open, days):
+    """OHLC completeness + validity. Missing or invalid data -> False.
+
+    Missing High/Low must NEVER default to 'not triggered': an
+    unobservable stop status excludes the leg. Also requires the D+2
+    open to match the entry reference and every bar to be positive with
+    High >= max(Open, Close) and Low <= min(Open, Close).
+    """
+    if entry_open is None or not days or days[0][0] != entry_open:
+        return False
+    for (o, low, high, c) in days:
+        if None in (o, low, high, c):
+            return False
+        if not (o > 0 and low > 0 and high > 0 and c > 0):
+            return False
+        if high < low or high < o or high < c or low > o or low > c:
+            return False
+    return True
 
 
 def run_event(btc, eth):
     """One event observation = equal-weight mean of both legs' nets.
 
-    Each leg input is (direction, entry_open, days) or None for missing
-    data. Any missing leg excludes the whole event (no interpolation).
-    Returns (mean_net, committed_contribution, details) or None.
+    Each leg input is (direction, entry_open, days) or
+    (direction, entry_open, days, funding_rates). Any missing or invalid
+    leg excludes the whole event (no interpolation, no 'not triggered'
+    default). Returns (mean_net, committed_contribution, details) or None.
     """
     legs = []
     for leg in (btc, eth):
         if leg is None:
             return None
-        d, entry_open, days = leg
-        if entry_open is None or any(c is None for (_, _, _, c) in days):
+        d, entry_open, days = leg[:3]
+        rates = leg[3] if len(leg) > 3 else None
+        if not validate_leg(entry_open, days):
             return None
-        legs.append(run_leg(d, entry_open, days))
+        result = run_leg(d, entry_open, days, funding_rates=rates)
+        if result is None:
+            return None
+        legs.append(result)
     mean_net = sum(l["net"] for l in legs) / len(legs)
     contribution = 0.10 * sum(l["net"] for l in legs)  # 10% per leg
     return mean_net, contribution, legs
@@ -257,5 +313,50 @@ check("E2E stopped leg + held leg average into one event observation",
       btc["type"] == "stop" and eth["type"] == "close" and ev is not None
       and approx(ev[0], (btc["net"] + eth["net"]) / 2)
       and approx(ev[1], 0.10 * (btc["net"] + eth["net"])))
+
+# 16. OHLC completeness: missing or invalid bars exclude, never default
+#     to 'not triggered' (revision 5, condition 1).
+check("E2E missing Low excludes the event, not a no-trigger close",
+      run_event((1, 104, [(104, 103, 105, 104), (105, None, 106, 105)]
+                 + SAFE_DAYS[2:]),
+                (1, 104, SAFE_DAYS)) is None)
+check("E2E missing High excludes the event, not a no-trigger close",
+      run_event((1, 104, [(104, 103, 105, 104), (105, 104, None, 105)]
+                 + SAFE_DAYS[2:]),
+                (1, 104, SAFE_DAYS)) is None)
+check("E2E invalid bar (High < Low) excludes the event",
+      run_event((1, 104, [(104, 105, 103, 104)] + SAFE_DAYS[1:]),
+                (1, 104, SAFE_DAYS)) is None)
+check("E2E D+2 open mismatch with the entry reference excludes the event",
+      run_event((1, 105, SAFE_DAYS), (1, 104, SAFE_DAYS)) is None)
+
+# 17. Funding settlement matching per leg (revision 5, condition 2).
+RATES = {t: 0.0001 for t in range(8, 97, 8)}  # 12 settlements, full hold
+r = run_leg(1, 104, SAFE_DAYS, funding_rates=RATES)
+check("E2E full hold matches 12 settlements, not an average",
+      r is not None and approx(r["funding"], 0.0012, 1e-12))
+r = run_leg(1, 104, [SAFE_DAYS[0], (105, 99.0, 106, 105)] + SAFE_DAYS[2:],
+            funding_rates=RATES)
+check("E2E stop on D+3 matches only 6 settlements, nothing after",
+      r is not None and approx(r["funding"], 0.0006, 1e-12))
+r = run_leg(1, 104, [(104, 99.0, 105, 104)] + SAFE_DAYS[1:],
+            funding_rates=RATES)
+check("E2E stop on D+2 matches only 3 settlements",
+      r is not None and approx(r["funding"], 0.0003, 1e-12))
+short_days = [(104, 103, 105, 103), (103, 102, 104, 102),
+              (102, 101, 103, 101), (101, 100, 102, 100)]
+r = run_leg(-1, 104, short_days, funding_rates=RATES)
+check("E2E short leg receives funding (negative funding cost)",
+      r is not None and r["type"] == "close"
+      and approx(r["funding"], -0.0012, 1e-12))
+rates_gap = {t: v for t, v in RATES.items() if t != 32}
+check("E2E missing settlement record excludes the leg, never fills 0",
+      run_event((1, 104, SAFE_DAYS, rates_gap),
+                (1, 104, SAFE_DAYS, RATES)) is None)
+rates_eth = {t: 0.0002 for t in range(8, 97, 8)}
+ev = run_event((1, 104, SAFE_DAYS, RATES), (1, 104, SAFE_DAYS, rates_eth))
+check("E2E each leg uses its own asset funding history",
+      ev is not None and approx(ev[2][0]["funding"], 0.0012, 1e-12)
+      and approx(ev[2][1]["funding"], 0.0024, 1e-12))
 
 print("ALL C5 END-TO-END TESTS PASSED")
