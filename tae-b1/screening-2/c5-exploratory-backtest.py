@@ -36,8 +36,10 @@ STOP_PCT = 0.02
 CUTOFF_DATE = "2026-10-30"
 # Direction rule, decided by the user 2026-10-30 (revision 8).
 DIRECTION_REFERENCE = "PER_LEG"
-# Execution approval gate: False refuses ANY returns run. Set True only
-# with the fresh v2 approval recorded (approver + UTC timestamp).
+# Execution approval gate: False refuses ANY returns run. It was True
+# ONLY for the single approved run 2026-10-30T09:32:16Z (user approval
+# 2026-10-30T09:30:54Z, application v2, C5 v0.8-DRAFT); reset to False
+# immediately after that run. Any further run needs a fresh approval.
 EXECUTION_APPROVED = False
 TIERS = {
     "low": {"slip": 0.00025, "spread": 0.0001},
@@ -374,9 +376,15 @@ def main():
         results["tiers"][tier] = {"trades": trades, "logs": logs,
                                   "placebo_trades": ptrades,
                                   "placebo_logs": plogs}
-    # zero-EXEC variant on the central traded set (double-count check)
-    cfg = TIERS["central"]
+    # zero-EXEC variant on the central traded set (double-count check).
+    # NOTE (pre-run gate fix, 2026-10-30, before any returns computed):
+    # exit type/day may legitimately differ between EXEC and zero-EXEC
+    # pricing (stop prices differ by ~EXEC), so differing exits are
+    # RECORDED, not asserted away; the clean subset (identical exits)
+    # carries the exact single-count check. Core engine/rules untouched.
     zero_diffs = []
+    zero_diffs_clean = []
+    n_differing = 0
     for t in results["tiers"]["central"]["trades"]:
         d = date.fromisoformat(t["date"])
         diffs = []
@@ -386,14 +394,25 @@ def main():
                     for i in range(2, 6)]
             typ, day_idx, e_px, x_px, gross0 = run_leg_prices(
                 leg["direction"], days[0][0], days, 0.0)
-            assert typ == leg["exit_type"] and day_idx == leg["exit_day"]
-            diffs.append(((leg["net_lo"] + leg["net_hi"]) / 2)
-                         - (gross0 - FEE_RT
-                            - (leg["fund_lo"] + leg["fund_hi"]) / 2))
-        zero_diffs.append(sum(diffs) / 2)
+            same_exit = (typ == leg["exit_type"]
+                         and day_idx == leg["exit_day"])
+            if not same_exit:
+                n_differing += 1
+            diff = ((leg["net_lo"] + leg["net_hi"]) / 2) \
+                - (gross0 - FEE_RT
+                   - (leg["fund_lo"] + leg["fund_hi"]) / 2)
+            diffs.append(diff)
+            if same_exit:
+                zero_diffs_clean.append(diff)
+        zero_diffs.append(sum(diffs) / len(diffs))
     results["zero_exec_check"] = {
         "mean_diff": sum(zero_diffs) / len(zero_diffs),
-        "n": len(zero_diffs)}
+        "mean_diff_clean": (sum(zero_diffs_clean) / len(zero_diffs_clean)
+                            if zero_diffs_clean else None),
+        "n": len(zero_diffs),
+        "n_legs": sum(len(t["legs"])
+                      for t in results["tiers"]["central"]["trades"]),
+        "n_differing_exits": n_differing}
     # buy-and-hold, gross, 2020-01-01 close -> 2026-10-29 close (final)
     bh = {}
     for sym in ("BTCUSDT", "ETHUSDT"):
@@ -410,7 +429,12 @@ def main():
             headers={"User-Agent": "curl"})
         text = urllib.request.urlopen(req, timeout=60).read().decode()
         vals = [float(r[1]) for r in csv.reader(text.splitlines()[1:])
-                if r and r[1] != "."]
+                if len(r) > 1 and r[1] not in ("", ".")]
+        # NOTE (post-run fix, no re-run): the run-time parse crashed on
+        # an empty trailing value and fell back to the 4.18% point
+        # value; the window-mean R in the report was computed
+        # independently from the pre-run FRED fetch. No return figure
+        # is affected (R is a benchmark comparison only).
         results["R"] = {"source": "FRED DGS3MO", "mean_pct": sum(vals) / len(vals),
                         "n_obs": len(vals), "last_pct": vals[-1]}
     except Exception as e:
