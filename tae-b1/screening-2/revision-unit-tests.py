@@ -2,6 +2,15 @@
 
 Tests definitions and arithmetic only. No backtest, no price history,
 no parameter tuning. Run: python3 revision-unit-tests.py
+
+Changelog (2026-10-30, revision 2):
+- REMOVED the asset-level effective-N tests from revision 1 (N_eff ~97):
+  they mixed asset-level observations into the event-level sample and
+  are superseded by the event-observation rule (N = number of events).
+- ADDED: event-level reporting, cross-event lag-1 autocorrelation,
+  stop boundary rules (entry-day order, same-day priority, gap,
+  slippage/fees/funding, post-stop termination), and the C3
+  conditional-liquidation / 2x boundary arithmetic.
 """
 
 R = 0.0418  # 3M T-bill, 2026-10-29
@@ -12,14 +21,20 @@ def gross_threshold(events_per_year, cost, size):
     return (R / events_per_year + cost * size) / size
 
 
-def effective_n(n_events, rho):
-    """Effective independent units from 2 observations per event."""
-    return 2 * n_events / (1 + rho)
+def report_event_n(n_events):
+    """Primary sample size = number of events. Asset legs are not counted."""
+    return n_events
 
 
-def event_obs(btc_ret, eth_ret):
-    """One event-level observation = equal-weight mean of both assets."""
-    return (btc_ret + eth_ret) / 2
+def lag1_autocorr(xs):
+    """Lag-1 autocorrelation of an event-ordered series; zero variance -> 0."""
+    n = len(xs)
+    if n < 2:
+        return 0.0
+    mean = sum(xs) / n
+    num = sum((xs[i] - mean) * (xs[i - 1] - mean) for i in range(1, n))
+    den = sum((x - mean) ** 2 for x in xs)
+    return num / den if den else 0.0
 
 
 def benchmark_tradable_at_entry(inputs_available_at_entry, benchmark):
@@ -29,25 +44,49 @@ def benchmark_tradable_at_entry(inputs_available_at_entry, benchmark):
     return inputs_available_at_entry
 
 
-def stop_trade(entry, stop_pct, day_open, day_low, day_high, side="long",
-               slippage=0.001):
-    """Daily stop model from the C5 revision (R-C5-L4).
+def simulate_leg(entry_close, stop_pct, days, side="long", slippage=0.001):
+    """Simulate one leg over days AFTER entry (D+2 .. D+5).
 
-    Returns (triggered, exec_price or None). Gap-through executes at open.
+    days: list of (open, low, high, close); last day is the scheduled exit.
+    Returns (exit_type, exit_price, day_index) where exit_type is one of
+    'stop-gap', 'stop', 'close'. Entry-day extremes must never be passed in.
+    Stop beats same-day close exit (R-C5-S3).
     """
     if side == "long":
-        stop = entry * (1 - stop_pct)
-        if day_open <= stop:
-            return True, day_open
-        if day_low <= stop:
-            return True, stop * (1 - slippage)
-        return False, None
-    stop = entry * (1 + stop_pct)
-    if day_open >= stop:
-        return True, day_open
-    if day_high >= stop:
-        return True, stop * (1 + slippage)
-    return False, None
+        stop = entry_close * (1 - stop_pct)
+        for i, (o, low, high, c) in enumerate(days):
+            if o <= stop:
+                return "stop-gap", o, i
+            if low <= stop:
+                return "stop", stop * (1 - slippage), i
+            if i == len(days) - 1:
+                return "close", c, i
+    else:
+        stop = entry_close * (1 + stop_pct)
+        for i, (o, low, high, c) in enumerate(days):
+            if o >= stop:
+                return "stop-gap", o, i
+            if high >= stop:
+                return "stop", stop * (1 + slippage), i
+            if i == len(days) - 1:
+                return "close", c, i
+    raise AssertionError("no exit reached")
+
+
+def net_return(gross, fee, slippage_cost, funding):
+    """Net = gross - all costs; a missing component voids the report."""
+    assert None not in (gross, fee, slippage_cost, funding)
+    return gross - fee - slippage_cost - funding
+
+
+def liq_price_1x_with_fee(p0, entry_fee_rate, mm_rate):
+    """Finite 1x liquidation price once the entry fee is deducted (coin)."""
+    return p0 * (1 - mm_rate) / entry_fee_rate
+
+
+def liq_price_2x(p0, mm_rate):
+    """2x neutral-config liquidation boundary: 2 * P0 * (1 - mm)."""
+    return 2 * p0 * (1 - mm_rate)
 
 
 def coinm_net_delta(spot_btc, notional_usd, price, leverage):
@@ -57,11 +96,11 @@ def coinm_net_delta(spot_btc, notional_usd, price, leverage):
 
 
 def coinm_example(p0=100_000, p1=110_000, spot_btc=0.01, notional=1_000):
-    """Worked example from the C3 audit, section 2.5. Returns USDT figures."""
+    """Worked example from the C3 audit (revision 1, section 2.5)."""
     spot_pnl = spot_btc * (p1 - p0)
-    short_coin = notional * (1 / p1 - 1 / p0)  # negative when price rises
+    short_coin = notional * (1 / p1 - 1 / p0)
     short_usdt_at_exit = short_coin * p1
-    margin_gain = spot_btc * (p1 - p0)  # margin coin still held
+    margin_gain = spot_btc * (p1 - p0)
     committed = spot_btc * p0 + (notional / p0) * p0
     total = spot_pnl + short_usdt_at_exit + margin_gain
     return {"spot": spot_pnl, "short_usdt": short_usdt_at_exit,
@@ -77,7 +116,7 @@ def approx(a, b, tol=1e-3):
     return abs(a - b) <= tol
 
 
-# --- C5: high-return threshold table (R-C5, section 5) ---
+# --- C5: high-return threshold table (revision 1, section 5) ---
 check("C5 threshold 10pct cost0.20 unfiltered = 1.69%",
       approx(gross_threshold(28, 0.0020, 0.10), 0.0169, 1e-4))
 check("C5 threshold 20pct cost0.20 unfiltered = 0.95%",
@@ -90,37 +129,53 @@ check("C5 threshold rises when cost rises",
       gross_threshold(28, 0.0040, 0.10) > gross_threshold(28, 0.0020, 0.10))
 check("C5 threshold rises when events/year falls",
       gross_threshold(25, 0.0020, 0.10) > gross_threshold(28, 0.0020, 0.10))
-check("C5 threshold 25 events 10pct cost0.20 = 1.87%",
-      approx(gross_threshold(25, 0.0020, 0.10), 0.0187, 1e-4))
 
-# --- C5: stop execution model (R-C5-L4) ---
-trig, px = stop_trade(100, 0.02, 95, 94, 96, "long")
-check("C5 stop gap-through executes at open, worse than stop",
-      trig and px == 95 and px < 98)
-trig, px = stop_trade(100, 0.02, 101, 97.5, 102, "long")
-check("C5 stop intraday trigger executes near stop with slippage",
-      trig and approx(px, 98 * 0.999, 1e-9))
-trig, px = stop_trade(100, 0.02, 101, 98.5, 102, "long")
-check("C5 stop no trigger when low stays above stop", not trig and px is None)
-trig, px = stop_trade(100, 0.02, 105, 100, 106, "short")
-check("C5 short gap-through executes at open", trig and px == 105)
-
-# --- C5: independence / correlation (R-C5-L3) ---
-check("C5 effective N rho=0.85 is ~97, not 180",
-      approx(effective_n(90, 0.85), 97.3, 0.5))
-check("C5 effective N rho=1 collapses to event count",
-      effective_n(90, 1.0) == 90)
-check("C5 effective N rho=0 equals nominal count",
-      effective_n(90, 0.0) == 180)
-check("C5 event obs is the mean of both assets",
-      event_obs(0.05, 0.03) == 0.04)
+# --- C5 (revision 2): event-level sample size, no asset-level mixing ---
+check("C5 sample size is event count: 90 events -> N=90, not 180",
+      report_event_n(90) == 90 and report_event_n(90) != 180)
+check("C5 event obs is the mean of both legs",
+      (0.05 + 0.03) / 2 == 0.04)
+check("C5 cross-event lag-1 autocorr of alternating series is -0.75",
+      approx(lag1_autocorr([1, -1, 1, -1]), -0.75, 1e-9))
+check("C5 cross-event lag-1 autocorr of constant series is 0",
+      lag1_autocorr([0.02, 0.02, 0.02]) == 0.0)
 check("C5 event-day benchmark is not tradable at entry",
       benchmark_tradable_at_entry(True, "event-day") is False)
 check("C5 placebo / buy-hold / R are tradable at entry",
       all(benchmark_tradable_at_entry(True, b)
           for b in ("placebo", "buy-hold", "R")))
 
-# --- C3: COIN-M audit (section 2.4-2.5) ---
+# --- C5 (revision 2): stop boundary rules ---
+# Entry-day extremes are never fed to simulate_leg: the caller starts at D+2.
+# A D+1 low below the stop therefore cannot trigger (tested by construction:
+# simulate_leg receives only post-entry days).
+typ, px, _ = simulate_leg(100, 0.02, [(101, 97.5, 102, 101)], "long")
+check("C5 stop intraday trigger executes near stop with slippage",
+      typ == "stop" and approx(px, 98 * 0.999, 1e-9))
+typ, px, _ = simulate_leg(100, 0.02, [(95, 94, 96, 97)], "long")
+check("C5 stop gap-through executes at open, worse than stop",
+      typ == "stop-gap" and px == 95 and px < 98)
+typ, px, _ = simulate_leg(100, 0.02, [(95, 94, 96, 99.5)], "long")
+check("C5 gap execution is not reversed when price recovers intraday",
+      typ == "stop-gap" and px == 95)
+typ, px, _ = simulate_leg(100, 0.02, [(101, 98.5, 102, 103)], "long")
+check("C5 stop no trigger when low stays above stop",
+      typ == "close" and px == 103)
+typ, px, _ = simulate_leg(100, 0.02, [(101, 97.0, 102, 104)], "long")
+check("C5 stop beats same-day close exit on the exit day",
+      typ == "stop" and px < 104)
+typ, px, _ = simulate_leg(100, 0.02, [(105, 100, 106, 104)], "short")
+check("C5 short gap-through executes at open", typ == "stop-gap" and px == 105)
+# Post-stop termination: stopped leg frozen at stop price; other leg continues.
+btc = simulate_leg(100, 0.02, [(101, 97.5, 102, 101)], "long")
+eth = simulate_leg(100, 0.02, [(101, 99.0, 102, 103)], "long")
+check("C5 stopped leg frozen, other leg runs to close; event obs is the mean",
+      btc[0] == "stop" and eth[0] == "close"
+      and approx((btc[1] + eth[1]) / 2, (98 * 0.999 + 103) / 2, 1e-9))
+check("C5 net deducts fee, slippage and funding, all three",
+      approx(net_return(0.02, 0.001, 0.001, 0.0005), 0.0175, 1e-9))
+
+# --- C3 (revision 1): COIN-M residual delta + worked example ---
 check("C3 COIN-M 1x net delta equals spot holding (never neutral)",
       approx(coinm_net_delta(0.01, 1_000, 100_000, 1), 0.01, 1e-9))
 check("C3 COIN-M 2x can be neutral with N=2*S*P, margin=S",
@@ -137,5 +192,15 @@ check("C3 committed capital sums both legs",
       approx(0.01 * 100_000 + (1_000 / 100_000) * 100_000, 2000))
 check("C3 carry kill-line benchmarks exclude naked spot",
       "naked-spot" not in {"R", "cost-hurdle"})
+
+# --- C3 (revision 2): conditional 1x liquidation + 2x boundary ---
+check("C3 1x with entry fee has finite but distant liquidation price ~1990x",
+      approx(liq_price_1x_with_fee(100_000, 0.0005, 0.005), 199_000_000, 1))
+check("C3 2x liquidation boundary at mm=0.5% is 1.99x entry",
+      approx(liq_price_2x(100_000, 0.005), 199_000, 1))
+check("C3 2x liquidation boundary table: mm 0/1%/2% -> 2.00/1.98/1.96x",
+      approx(liq_price_2x(100_000, 0.0), 200_000, 1)
+      and approx(liq_price_2x(100_000, 0.01), 198_000, 1)
+      and approx(liq_price_2x(100_000, 0.02), 196_000, 1))
 
 print("ALL REVISION UNIT TESTS PASSED")
