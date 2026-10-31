@@ -13,6 +13,7 @@
 - 候选 B：台湾 VPS——合约 fapi 直连通，现货 `api.binance.com` 连通性**未实测**，部署前须先验。
 - 本 VM **不可行**：币安交易接口 451 地区限制，镜像只给公开行情。
 - 部署前检查清单：公开 klines 可达、测试网可达、时钟同步（NTP）、cron 可用、磁盘可写本地日志。
+- **实测结论（2026-10-31，tw-ssh 直测，已推翻候选 B）**：`api`/`api1`/`api2`/`api3`、`testnet.binance.vision`、`fapi.binance.com` 均为 **451**（“restricted location”）；仅 `www.binance.com` 与 `data-api.binance.vision` 的公开行情通（200）。VPS 当前**不可**作为执行器主机。注意：2026-10-22 该 VPS 上 fapi 曾实测 200，今日已变 451，原因未断定（币安收紧或 IP 被标记均可能）。主机待重新裁决：Hermes 机器（须先验交易接口经代理可达）或 VPS 加代理 egress（新增组件，须另议）；时钟偏移未验（time 接口同被 451）、ccxt 未装、cron 正常。
 
 ## 2. 密钥与安全（硬规则）
 
