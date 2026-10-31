@@ -1,0 +1,136 @@
+{
+  "grade": "B",
+  "failed_eliminate": [],
+  "failed_edge": [
+    "K4"
+  ],
+  "oos_cagr": 0.12641678319928373,
+  "oos_mdd": -0.39980308905442286,
+  "oos_sharpe": 0.556205546403532,
+  "ew_oos_cagr": -0.263703916454304,
+  "full_cagr": 0.36993887161265726,
+  "full_sharpe": 1.2607306274256467,
+  "cost_share": 0.1361331144459179,
+  "placebo_pct_ann": 100.0,
+  "placebo_pct_sharpe": 100.0,
+  "placebo_ann_p90": 0.09886729495488629,
+  "k4_rows": [
+    [
+      "incl max",
+      "IID",
+      0.0004549665735297745,
+      [
+        -0.00025593476163587896,
+        0.0011604201350945186
+      ],
+      0.10565
+    ],
+    [
+      "incl max",
+      "block3",
+      0.0004549665735297745,
+      [
+        -0.0002664417252329617,
+        0.0011890845054418403
+      ],
+      0.11225
+    ],
+    [
+      "incl max",
+      "block5",
+      0.0004549665735297745,
+      [
+        -0.0002801978809573585,
+        0.0012186901070348416
+      ],
+      0.1186
+    ],
+    [
+      "incl max",
+      "block10",
+      0.0004549665735297745,
+      [
+        -0.00032500650213899247,
+        0.0012948296355041664
+      ],
+      0.1356
+    ],
+    [
+      "incl max",
+      "block20",
+      0.0004549665735297745,
+      [
+        -0.00034736605328175227,
+        0.0013723788116579193
+      ],
+      0.15105
+    ],
+    [
+      "excl max",
+      "IID",
+      0.0004046111124262377,
+      [
+        -0.0002924707543036625,
+        0.0011099282172445564
+      ],
+      0.12795
+    ],
+    [
+      "excl max",
+      "block3",
+      0.0004046111124262377,
+      [
+        -0.0003110082017510122,
+        0.0011405237300702337
+      ],
+      0.13615
+    ],
+    [
+      "excl max",
+      "block5",
+      0.0004046111124262377,
+      [
+        -0.0003263807380665324,
+        0.0011460327468310486
+      ],
+      0.13835
+    ],
+    [
+      "excl max",
+      "block10",
+      0.0004046111124262377,
+      [
+        -0.00034586709096641764,
+        0.001212829849182943
+      ],
+      0.1574
+    ],
+    [
+      "excl max",
+      "block20",
+      0.0004046111124262377,
+      [
+        -0.0003823991849726981,
+        0.0013016543791329644
+      ],
+      0.1739
+    ]
+  ],
+  "spec": {
+    "universe": "60 Binance USDT spot pairs; delisted/renamed coins truncated at last trading day",
+    "data": "Binance daily klines, 2018-01-01 .. 2026-10-30, close only",
+    "timing": "signal on close of day T, executed at close of day T+1 (weights shifted 1 bar)",
+    "sizing": "1/60 equity per open position, max 60 concurrent, long only spot, no leverage, no funding",
+    "cost_tiers": {
+      "low_6bp": 0.0006,
+      "base_15bp": 0.0015,
+      "high_30bp": 0.003,
+      "extreme_50bp": 0.005
+    },
+    "benchmark": "equal-weight buy&hold of the same 62 symbols (one entry cost), plus BTC buy&hold",
+    "stat_unit": "portfolio-day",
+    "oos_start": "2022-01-01",
+    "is_window": "2018-01-01..2021-12-31"
+  },
+  "seed": 20261031
+}
