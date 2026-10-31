@@ -1,0 +1,482 @@
+[
+ {
+  "file": "1INCHUSDT_1d.csv",
+  "sym": "1INCHUSDT",
+  "bars": 2136,
+  "first": "2020-12-25",
+  "last": "2026-10-30",
+  "sha256": "ea6fe2bc6997f706cb3947fb298c82215bb36b6b62ab6d92fdf64e4654caf0a9"
+ },
+ {
+  "file": "ADAUSDT_1d.csv",
+  "sym": "ADAUSDT",
+  "bars": 3119,
+  "first": "2018-04-17",
+  "last": "2026-10-30",
+  "sha256": "4066da3a78e855f60d6920813ae47b316801908acbefada0fe70d8ba48272be8"
+ },
+ {
+  "file": "ALGOUSDT_1d.csv",
+  "sym": "ALGOUSDT",
+  "bars": 2688,
+  "first": "2019-06-22",
+  "last": "2026-10-30",
+  "sha256": "58c4b8036b541fa2ea4c16179ab4d5c005dd07b4d6fbecd70e6d6381161eee93"
+ },
+ {
+  "file": "APTUSDT_1d.csv",
+  "sym": "APTUSDT",
+  "bars": 1473,
+  "first": "2022-10-19",
+  "last": "2026-10-30",
+  "sha256": "d57c2474c9798cfe7da0252e62c79722e5e5b2d6f995c9ec35cd2cc1996b9b85"
+ },
+ {
+  "file": "ARBUSDT_1d.csv",
+  "sym": "ARBUSDT",
+  "bars": 1318,
+  "first": "2023-03-23",
+  "last": "2026-10-30",
+  "sha256": "cb344e6273e4910af4d2b981c03beb7df5f3b9d65540ed4d08e1181d1eeec57f"
+ },
+ {
+  "file": "ATOMUSDT_1d.csv",
+  "sym": "ATOMUSDT",
+  "bars": 2742,
+  "first": "2019-04-29",
+  "last": "2026-10-30",
+  "sha256": "86a69fe0b1e4aadce6e0b8dd75b69c3342c1f8f53ec4a8a140d583bff7824d4c"
+ },
+ {
+  "file": "AVAXUSDT_1d.csv",
+  "sym": "AVAXUSDT",
+  "bars": 2230,
+  "first": "2020-09-22",
+  "last": "2026-10-30",
+  "sha256": "3ad56e3fd8c395bb544db18f5ae91f426a5e3dc7312b2bec7c94e7169b45c5ee"
+ },
+ {
+  "file": "AXSUSDT_1d.csv",
+  "sym": "AXSUSDT",
+  "bars": 2187,
+  "first": "2020-11-04",
+  "last": "2026-10-30",
+  "sha256": "2d859580dde505f79b09b3ca6c8b9d1267f935ddb7837164a6d142bd2e880b86"
+ },
+ {
+  "file": "BCHUSDT_1d.csv",
+  "sym": "BCHUSDT",
+  "bars": 2529,
+  "first": "2019-11-28",
+  "last": "2026-10-30",
+  "sha256": "c43555e0af171beccbf01e257c41fdb9fdf92215658e83ee98a07c843ced2d4a"
+ },
+ {
+  "file": "BNBUSDT_1d.csv",
+  "sym": "BNBUSDT",
+  "bars": 3281,
+  "first": "2017-11-06",
+  "last": "2026-10-30",
+  "sha256": "6dcd714ebbdd211a2a42c5d488b12dca1a6e0168c6757aecbba1691900a8d944"
+ },
+ {
+  "file": "BTCUSDT_1d.csv",
+  "sym": "BTCUSDT",
+  "bars": 3362,
+  "first": "2017-08-17",
+  "last": "2026-10-30",
+  "sha256": "68ee173ac2cd5cc4afced4db4fee3cbad29b872fa173c0041b050a60dc768336"
+ },
+ {
+  "file": "CHZUSDT_1d.csv",
+  "sym": "CHZUSDT",
+  "bars": 2612,
+  "first": "2019-09-06",
+  "last": "2026-10-30",
+  "sha256": "29676ccbb9bc9f1abd325ed36cf36cf5c6a260b1c6b2f02d0f3628c9073696ed"
+ },
+ {
+  "file": "COMPUSDT_1d.csv",
+  "sym": "COMPUSDT",
+  "bars": 2319,
+  "first": "2020-06-25",
+  "last": "2026-10-30",
+  "sha256": "91c01108d3e7b23d1f2495e16d39aa8c8a490d410a78b99e1cd0e07900fabf61"
+ },
+ {
+  "file": "CRVUSDT_1d.csv",
+  "sym": "CRVUSDT",
+  "bars": 2268,
+  "first": "2020-08-15",
+  "last": "2026-10-30",
+  "sha256": "2f1ff6e90fa715d755d9d4a798c8fab65ce07354219a16f77901fa4915ee48bd"
+ },
+ {
+  "file": "DASHUSDT_1d.csv",
+  "sym": "DASHUSDT",
+  "bars": 2774,
+  "first": "2019-03-28",
+  "last": "2026-10-30",
+  "sha256": "33dc69766ad4bf76378e667f933c14b728dc32d80fd1245e9823740cc7ba0b40"
+ },
+ {
+  "file": "DOGEUSDT_1d.csv",
+  "sym": "DOGEUSDT",
+  "bars": 2675,
+  "first": "2019-07-05",
+  "last": "2026-10-30",
+  "sha256": "517a72488e7dbae7c370979ddea400d0ce527a2be00b3773d119a4aa58171331"
+ },
+ {
+  "file": "DOTUSDT_1d.csv",
+  "sym": "DOTUSDT",
+  "bars": 2265,
+  "first": "2020-08-18",
+  "last": "2026-10-30",
+  "sha256": "3f4b45963aa7899f4df178611cfd4fc2bd628223898696473d1481de448aff5b"
+ },
+ {
+  "file": "ENJUSDT_1d.csv",
+  "sym": "ENJUSDT",
+  "bars": 2753,
+  "first": "2019-04-18",
+  "last": "2026-10-30",
+  "sha256": "710294be0d3a630b891e0592287cc13763d4b309d342accb66b093d2ac1a83c1"
+ },
+ {
+  "file": "EOSUSDT_1d.csv",
+  "sym": "EOSUSDT",
+  "bars": 2556,
+  "first": "2018-05-28",
+  "last": "2025-05-26",
+  "sha256": "ab47208b424911988cef8520ea645a41204d41d7ae44069cf69436d06b460b5a"
+ },
+ {
+  "file": "ETCUSDT_1d.csv",
+  "sym": "ETCUSDT",
+  "bars": 3063,
+  "first": "2018-06-12",
+  "last": "2026-10-30",
+  "sha256": "a3eb83e6cc93035074b4fe78550684e9f19f9b426e3b4a9e525b05a2ca68c387"
+ },
+ {
+  "file": "ETHUSDT_1d.csv",
+  "sym": "ETHUSDT",
+  "bars": 3362,
+  "first": "2017-08-17",
+  "last": "2026-10-30",
+  "sha256": "28b4ef337edd7ade40ed23455f5133864103ccec00a86e26d3b06eea2bdb39e1"
+ },
+ {
+  "file": "FILUSDT_1d.csv",
+  "sym": "FILUSDT",
+  "bars": 2207,
+  "first": "2020-10-15",
+  "last": "2026-10-30",
+  "sha256": "f99d6293be17c90a04b2ec19bd16f6f82889cebda380062e973399392a4e32ca"
+ },
+ {
+  "file": "FTMUSDT_1d.csv",
+  "sym": "FTMUSDT",
+  "bars": 2044,
+  "first": "2019-06-11",
+  "last": "2025-01-13",
+  "sha256": "f0d52c4c0c8de4ae415ece26963f972ac07b04df2a7bfd496a453d1212eec848"
+ },
+ {
+  "file": "FTTUSDT_1d.csv",
+  "sym": "FTTUSDT",
+  "bars": 2197,
+  "first": "2019-12-20",
+  "last": "2026-10-30",
+  "sha256": "7e0ac6b34a41bf494078d59a1da4836b81c9d267b1e2335f3a491117ef0455ea"
+ },
+ {
+  "file": "GRTUSDT_1d.csv",
+  "sym": "GRTUSDT",
+  "bars": 2144,
+  "first": "2020-12-17",
+  "last": "2026-10-30",
+  "sha256": "11c1f256986f1000c4f47d935e916f7eef04a09d30f25bd44a144b330d43a494"
+ },
+ {
+  "file": "ICPUSDT_1d.csv",
+  "sym": "ICPUSDT",
+  "bars": 1999,
+  "first": "2021-05-11",
+  "last": "2026-10-30",
+  "sha256": "7a4eabc2f7e34ec571f131f972665cf645827dee42a3e1c98cce7257a73678a6"
+ },
+ {
+  "file": "INJUSDT_1d.csv",
+  "sym": "INJUSDT",
+  "bars": 2201,
+  "first": "2020-10-21",
+  "last": "2026-10-30",
+  "sha256": "74fac81ff59c94ab1b30a64dc859881d31eb86a3d992829574f4d006f98e0e41"
+ },
+ {
+  "file": "IOTXUSDT_1d.csv",
+  "sym": "IOTXUSDT",
+  "bars": 2543,
+  "first": "2019-11-14",
+  "last": "2026-10-30",
+  "sha256": "2fc48b18a17d6c68b23d4864d898750d1d1c89b4b513c8fa7f38a79ee505285c"
+ },
+ {
+  "file": "JUPUSDT_1d.csv",
+  "sym": "JUPUSDT",
+  "bars": 1004,
+  "first": "2024-01-31",
+  "last": "2026-10-30",
+  "sha256": "f409c606461d821d2fa900d64c819ea70d7ee7cd9af641e09bd1cd831ac9094a"
+ },
+ {
+  "file": "KSMUSDT_1d.csv",
+  "sym": "KSMUSDT",
+  "bars": 2248,
+  "first": "2020-09-04",
+  "last": "2026-10-30",
+  "sha256": "852c6e72fac3eeaf2bfb955456656dd55c37fb77e19dc74ae74ccc42f0a8f143"
+ },
+ {
+  "file": "LINKUSDT_1d.csv",
+  "sym": "LINKUSDT",
+  "bars": 2845,
+  "first": "2019-01-16",
+  "last": "2026-10-30",
+  "sha256": "970088a8ac3d067c46304ce1725ac6e689dd557043e951022350672e962142e3"
+ },
+ {
+  "file": "LTCUSDT_1d.csv",
+  "sym": "LTCUSDT",
+  "bars": 3225,
+  "first": "2018-01-01",
+  "last": "2026-10-30",
+  "sha256": "ad076e02c6ef73028e29008ab57dafd1c7f1240be7122b6ad557d7103ef7916c"
+ },
+ {
+  "file": "LUNAUSDT_1d.csv",
+  "sym": "LUNAUSDT",
+  "bars": 631,
+  "first": "2020-08-21",
+  "last": "2022-05-13",
+  "sha256": "f201e7cfd1b3730dd65dfc9fa09a218d4c1a0c62afed261e1da1a12a6f0c729e"
+ },
+ {
+  "file": "MANAUSDT_1d.csv",
+  "sym": "MANAUSDT",
+  "bars": 2277,
+  "first": "2020-08-06",
+  "last": "2026-10-30",
+  "sha256": "71194c138ccc0cf300d9f1e5fc9706c180e98ecc87477bb8cbbf0b6de1deea56"
+ },
+ {
+  "file": "MATICUSDT_1d.csv",
+  "sym": "MATICUSDT",
+  "bars": 1965,
+  "first": "2019-04-26",
+  "last": "2024-09-10",
+  "sha256": "62e6a1fa7e61b35de228f88c089a132e4400f7495855e07fbc62cfdcb1846ab6"
+ },
+ {
+  "file": "NEARUSDT_1d.csv",
+  "sym": "NEARUSDT",
+  "bars": 2208,
+  "first": "2020-10-14",
+  "last": "2026-10-30",
+  "sha256": "a15cd4ccc9c1ba8033fbb45d4fbcd7bf24da90efc528caca576e02dd4c35c6df"
+ },
+ {
+  "file": "NEOUSDT_1d.csv",
+  "sym": "NEOUSDT",
+  "bars": 3225,
+  "first": "2018-01-01",
+  "last": "2026-10-30",
+  "sha256": "f8d84af4d334e02770047cab85ea2c1c7782d5f379a688e7058f9442c7bc9cdb"
+ },
+ {
+  "file": "ONTUSDT_1d.csv",
+  "sym": "ONTUSDT",
+  "bars": 3067,
+  "first": "2018-06-08",
+  "last": "2026-10-30",
+  "sha256": "11827e6f76ef5f62c22a44440abcacad9523ae6fa30d4d99e922e2fb60dd1065"
+ },
+ {
+  "file": "OPUSDT_1d.csv",
+  "sym": "OPUSDT",
+  "bars": 1613,
+  "first": "2022-06-01",
+  "last": "2026-10-30",
+  "sha256": "833d385cc2d44a0868ad157c24c0e8f58bfd2b8d580e823d36589abb715c3b19"
+ },
+ {
+  "file": "PEPEUSDT_1d.csv",
+  "sym": "PEPEUSDT",
+  "bars": 1275,
+  "first": "2023-05-05",
+  "last": "2026-10-30",
+  "sha256": "5e6c7b7dcf4e99167b164f2f8602272914bd4c3cb2230ca92fad6e1b6a4020e8"
+ },
+ {
+  "file": "QTUMUSDT_1d.csv",
+  "sym": "QTUMUSDT",
+  "bars": 3148,
+  "first": "2018-03-19",
+  "last": "2026-10-30",
+  "sha256": "17abde612fabe6c7362a4b23e289be00401e65cb41083a8b839e057ffb9da6c0"
+ },
+ {
+  "file": "RUNEUSDT_1d.csv",
+  "sym": "RUNEUSDT",
+  "bars": 2248,
+  "first": "2020-09-04",
+  "last": "2026-10-30",
+  "sha256": "7e85c8bdd7abd297f7b49eea761ab29f22b5f44b906f65613c2ea7b58f30f4db"
+ },
+ {
+  "file": "SANDUSDT_1d.csv",
+  "sym": "SANDUSDT",
+  "bars": 2269,
+  "first": "2020-08-14",
+  "last": "2026-10-30",
+  "sha256": "8a10c0f9467f213559991b62a5f4c9fba0b8563b5cd9f08c83574d8b78cd7294"
+ },
+ {
+  "file": "SEIUSDT_1d.csv",
+  "sym": "SEIUSDT",
+  "bars": 1173,
+  "first": "2023-08-15",
+  "last": "2026-10-30",
+  "sha256": "ec3c8d6fc9612f5fe3f30a34a0a3bad9764de465c4c768f06c094885e89bf882"
+ },
+ {
+  "file": "SNXUSDT_1d.csv",
+  "sym": "SNXUSDT",
+  "bars": 2305,
+  "first": "2020-07-09",
+  "last": "2026-10-30",
+  "sha256": "ed0e835b4735440881526730bb87f3e3d4ca9e1c602b1f2e162e5f0622ad596b"
+ },
+ {
+  "file": "SOLUSDT_1d.csv",
+  "sym": "SOLUSDT",
+  "bars": 2272,
+  "first": "2020-08-11",
+  "last": "2026-10-30",
+  "sha256": "e28a6b15be62ba02adbb6a810c70a4155dafe8dc3ec0e5c85b3d64b38e30ca07"
+ },
+ {
+  "file": "SUIUSDT_1d.csv",
+  "sym": "SUIUSDT",
+  "bars": 1277,
+  "first": "2023-05-03",
+  "last": "2026-10-30",
+  "sha256": "bbafc22b683ca5f33b43a26e6eadd94b969e6fbf10142f63eacb5ec1273f7597"
+ },
+ {
+  "file": "SUSHIUSDT_1d.csv",
+  "sym": "SUSHIUSDT",
+  "bars": 2251,
+  "first": "2020-09-01",
+  "last": "2026-10-30",
+  "sha256": "dae327fcb0fe142641aef89ee593369373c0899e901fc85a7ef52e958bc2114a"
+ },
+ {
+  "file": "THETAUSDT_1d.csv",
+  "sym": "THETAUSDT",
+  "bars": 2761,
+  "first": "2019-04-10",
+  "last": "2026-10-30",
+  "sha256": "6fc410fbd7377f5c9e35ae5f8d068ae70e03b5f5372735cd830d4ed1eeb81cb9"
+ },
+ {
+  "file": "TIAUSDT_1d.csv",
+  "sym": "TIAUSDT",
+  "bars": 1096,
+  "first": "2023-10-31",
+  "last": "2026-10-30",
+  "sha256": "99a7c627fbb29c85397bc6d61ad7f62ecea80ab26719fb9545e5b5c5567ca315"
+ },
+ {
+  "file": "TRXUSDT_1d.csv",
+  "sym": "TRXUSDT",
+  "bars": 3064,
+  "first": "2018-06-11",
+  "last": "2026-10-30",
+  "sha256": "f599ff37f78ed1f7462527697638a3fa8004777a3b2278a5ec8b5f218239527a"
+ },
+ {
+  "file": "UNIUSDT_1d.csv",
+  "sym": "UNIUSDT",
+  "bars": 2235,
+  "first": "2020-09-17",
+  "last": "2026-10-30",
+  "sha256": "5da8bc80595a3417e5eb9438be6a3b716443a116d4030412b841e9ee3cafcef9"
+ },
+ {
+  "file": "VETUSDT_1d.csv",
+  "sym": "VETUSDT",
+  "bars": 3020,
+  "first": "2018-07-25",
+  "last": "2026-10-30",
+  "sha256": "95b1422ba251fe4a19bacef152b05faf17145b0f52335f3dd18fd1cdce3f2eb3"
+ },
+ {
+  "file": "WIFUSDT_1d.csv",
+  "sym": "WIFUSDT",
+  "bars": 970,
+  "first": "2024-03-05",
+  "last": "2026-10-30",
+  "sha256": "2e9052c2040fd7475ecc6aa1c8ea6125b547cbb93a776ce49728dee0e3f73373"
+ },
+ {
+  "file": "XLMUSDT_1d.csv",
+  "sym": "XLMUSDT",
+  "bars": 3075,
+  "first": "2018-05-31",
+  "last": "2026-10-30",
+  "sha256": "5222651bbd4f96f1666f0b6d89e6541924e627c8bf6f0ec5d291fb55414bd232"
+ },
+ {
+  "file": "XMRUSDT_1d.csv",
+  "sym": "XMRUSDT",
+  "bars": 1804,
+  "first": "2019-03-15",
+  "last": "2024-02-20",
+  "sha256": "4e57b5c544eaaef21a2496c547eb08eafbaedf527aac795821f733dd72103fb7"
+ },
+ {
+  "file": "XRPUSDT_1d.csv",
+  "sym": "XRPUSDT",
+  "bars": 3102,
+  "first": "2018-05-04",
+  "last": "2026-10-30",
+  "sha256": "bb7a179f71199cf434fe0fab7ad26a275a6f57d49a9f519b8140e8a07117bdf0"
+ },
+ {
+  "file": "YFIUSDT_1d.csv",
+  "sym": "YFIUSDT",
+  "bars": 2273,
+  "first": "2020-08-10",
+  "last": "2026-10-30",
+  "sha256": "27f7a9d7045692e4eb9cd1d7289249881f469c928687fc652ddefbea20d93f20"
+ },
+ {
+  "file": "ZECUSDT_1d.csv",
+  "sym": "ZECUSDT",
+  "bars": 2781,
+  "first": "2019-03-21",
+  "last": "2026-10-30",
+  "sha256": "a2357267e2cbd7469cd85520d4d5053a92154e7755d80ca6d05d64f07d6b7266"
+ },
+ {
+  "file": "ZILUSDT_1d.csv",
+  "sym": "ZILUSDT",
+  "bars": 2811,
+  "first": "2019-02-19",
+  "last": "2026-10-30",
+  "sha256": "f8dbce0852d0ac158c6ba7a0f23ea7a31fd0e212d33148b174ccc7f10495761f"
+ }
+]
