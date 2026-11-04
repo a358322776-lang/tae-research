@@ -60,11 +60,29 @@ def approx(a, b, tol=1e-9):
 
 
 # ---------------------------------------------------------------- engine
+def ohlc_to_leg_day(row):
+    """D-ENG-1 FIX (branch fix/d-eng-1-ohlc-mapping; main untouched).
+
+    Standard OHLC row [open, high, low, close] -> leg tuple
+    (open, low, high, close) with EXPLICIT field names. run_leg_prices
+    unpacks (o, low, high, c); passing OHLC rows positionally swapped
+    high/low and made stops trigger on the wrong extreme. All callers
+    that build days from bars MUST go through this helper; never pass
+    tuple(b[day]) into run_leg_prices. Invalid rows are rejected, not
+    silently reordered.
+    """
+    o, h, l, c = float(row[0]), float(row[1]), float(row[2]), float(row[3])
+    assert h >= l and h >= o and h >= c and l <= o and l <= c, \
+        f"invalid OHLC row: {row!r}"
+    return (o, l, h, c)
+
+
 def run_leg_prices(direction, entry_open, days, exec_cost):
     """Entry/stop/exit mechanics. Mirrors c5-e2e-tests.py run_leg (prices).
 
-    days: (open, low, high, close) for D+2..D+5. Returns
-    (exit_type, exit_day_idx, entry_px, exit_px, gross).
+    days: (open, low, high, close) for D+2..D+5 -- NOT standard OHLC
+    order. Callers must build days via ohlc_to_leg_day(); see D-ENG-1.
+    Returns (exit_type, exit_day_idx, entry_px, exit_px, gross).
     """
     assert direction in (1, -1)
     entry_px = entry_open * (1 + direction * exec_cost)
@@ -223,7 +241,7 @@ def run_tier(tier, events, bars, funding, directions):
                 if day not in b or not valid_bar(b[day]):
                     ok = False
                     break
-                days.append(tuple(b[day]))
+                days.append(ohlc_to_leg_day(b[day]))
             if not ok:
                 break
             legs[sym] = (move, days)
@@ -390,7 +408,8 @@ def main():
         diffs = []
         for leg in t["legs"]:
             sym = leg["symbol"]
-            days = [tuple(bars[sym][(d + timedelta(days=i)).isoformat()])
+            days = [ohlc_to_leg_day(
+                        bars[sym][(d + timedelta(days=i)).isoformat()])
                     for i in range(2, 6)]
             typ, day_idx, e_px, x_px, gross0 = run_leg_prices(
                 leg["direction"], days[0][0], days, 0.0)
