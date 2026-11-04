@@ -1,0 +1,23 @@
+test_fetch_json_parses_without_network (test_data_engine.TestFetchReadOnly.test_fetch_json_parses_without_network) ... ok
+test_https_only (test_data_engine.TestFetchReadOnly.test_https_only) ... ok
+test_non_allowlisted_host_rejected (test_data_engine.TestFetchReadOnly.test_non_allowlisted_host_rejected) ... ok
+test_probe_rejects_http_and_leaks_no_body (test_data_engine.TestFetchReadOnly.test_probe_rejects_http_and_leaks_no_body) ... ok
+test_probe_success_has_no_body_field (test_data_engine.TestFetchReadOnly.test_probe_success_has_no_body_field) ... ok
+test_signed_params_rejected (test_data_engine.TestFetchReadOnly.test_signed_params_rejected) ... ok
+test_ledger_appends (test_data_engine.TestSnapshotImmutability.test_ledger_appends) ... ok
+test_quality_failure_refuses_write (test_data_engine.TestSnapshotImmutability.test_quality_failure_refuses_write) ... ok
+test_second_write_same_id_refused (test_data_engine.TestSnapshotImmutability.test_second_write_same_id_refused) ... ok
+test_tamper_detected (test_data_engine.TestSnapshotImmutability.test_tamper_detected) ... ok
+test_write_verify_and_readonly (test_data_engine.TestSnapshotImmutability.test_write_verify_and_readonly) ... ok
+test_drop_unclosed_bars (test_data_engine.TestValidateBars.test_drop_unclosed_bars) ... ok
+test_duplicate_detected (test_data_engine.TestValidateBars.test_duplicate_detected) ... ok
+test_empty_rejected (test_data_engine.TestValidateBars.test_empty_rejected) ... ok
+test_gap_detected (test_data_engine.TestValidateBars.test_gap_detected) ... ok
+test_high_low_violation (test_data_engine.TestValidateBars.test_high_low_violation) ... ok
+test_unclosed_bar_rejected (test_data_engine.TestValidateBars.test_unclosed_bar_rejected) ... ok
+test_valid_bars_pass (test_data_engine.TestValidateBars.test_valid_bars_pass) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.033s
+
+OK

@@ -28,3 +28,15 @@ python3 -m unittest discover -s research-lab -p "test_registry.py" -v
 - 计数器超限时登记函数抛错，调用方不得绕过、不得改上限（上限变更须用户批准）。
 - 本模块不读、不写交易接口，不接触密钥与冻结目录，不产生收益数字（收益数字只由回测引擎产出）。
 - 策略搜索尚未开放：登记库现为空库（0 假设、0 实验），Stage 2 试运行批准前不得登记任何真实假设。
+
+## 数据引擎（Stage 1 第二项，2026-11-04 验收）
+
+| 文件 | 说明 |
+|---|---|
+| `data_engine.py` | 仅标准库：公开接口只读取数、质量检查、快照写入（SHA256 + 只读 0o444）、哈希复核、ledger 只追加、连通性探针 |
+| `fetch_snapshot.py` | 单标的快照 CLI；取数层丢弃未收盘 bar（记入 manifest），质量失败不写快照 |
+| `probe_connectivity.py` | 固定 4 个只读探针（镜像 ping/klines/fundingRate + 直连 fapi ping），不重试，不存响应体 |
+| `test_data_engine.py` | 18 个测试，全过；验收记录见 `acceptance/snapshot-connectivity-2026-11-04.md` |
+
+快照只写 `state/snapshots/`（本地-only），manifest 含“历史可交易集合未声明”注记。
+本轮未安装 ccxt/pyarrow/duckdb（须另行申请），未测 VPS，未建资金费率快照。

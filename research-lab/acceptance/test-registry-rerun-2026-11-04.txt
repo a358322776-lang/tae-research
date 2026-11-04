@@ -1,0 +1,11 @@
+test_attempts_cannot_be_updated_or_deleted (test_registry.TestAppendOnly.test_attempts_cannot_be_updated_or_deleted) ... ok
+test_knowledge_and_audit_cannot_be_deleted (test_registry.TestAppendOnly.test_knowledge_and_audit_cannot_be_deleted) ... ok
+test_duplicate_fingerprint_rejected (test_registry.TestCounters.test_duplicate_fingerprint_rejected) ... ok
+test_fourth_hypothesis_rejected (test_registry.TestCounters.test_fourth_hypothesis_rejected) ... ok
+test_screen_threshold (test_registry.TestCounters.test_screen_threshold) ... ok
+test_twenty_first_experiment_rejected (test_registry.TestCounters.test_twenty_first_experiment_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.036s
+
+OK
