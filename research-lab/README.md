@@ -73,10 +73,17 @@ CA-1/P4，不做资金费率策略回测。
 
 验收报告见 `acceptance/validator-acceptance-2026-11-04.md`、
 `acceptance/sandbox-safety-acceptance-2026-11-04.md`、
-`acceptance/scheduler-report-acceptance-2026-11-04.md`；
+`acceptance/scheduler-report-acceptance-2026-11-04.md`、
+`acceptance/cost-model-a1-acceptance-2026-11-04.md`；
 结项核对与 Stage 2 条件见 `acceptance/stage1-closeout-checklist-2026-11-04.md`、
 `acceptance/stage2-startup-conditions-2026-11-04.md`。
 Stage 1 暂不正式结项，Stage 2 只批设计/准备/隔离环境建设。
+
+## 统一成本函数（A1，2026-11-04 批准执行）
+
+`cost_model.py` + 密封 `cost-specs-v1.json`：理论价/成交价分离、
+滑点价差一次扣除、费用基准显式；13 项合成数据测试全过；
+B1/C5 引擎与历史记录零改动。适配器（A2）与登记库字段（A3）未批未建。
 
 ## 依赖（Stage 1 第三项第 2 条，2026-11-04 核实）
 
