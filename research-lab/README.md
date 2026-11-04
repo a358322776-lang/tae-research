@@ -62,6 +62,22 @@ high, close)` 解包的 `run_leg_prices`，high/low 互换，止损触发集小�
 快照只写 `state/funding-snapshots/`（本地-only）。仅管道验证：不恢复
 CA-1/P4，不做资金费率策略回测。
 
+## 独立验证器 / 沙箱 / 调度器（Stage 1 第四～六项，2026-11-04 验收）
+
+| 文件 | 说明 |
+|---|---|
+| `validator.py` + `validation-standards-v1.json`（密封） | 时间边界/可用时间/字段契约（`Bar`）/成本/基准复现/防篡改；18 项测试全过；含 D-ENG-1 回归与漏网证明 |
+| `engine-contract-audit-2026-11-04.md`（acceptance/） | B1 等 8 个引擎/文件组的契约审计：换位只在 C5 发现，其余未发现同类缺陷；未验证清单见报告 |
+| `codex_sandbox.py` | `unshare --net` + rlimits + env 白名单 + AST 扫描；11 项安全测试全过；`run_codex_task` 一律拒绝（自主研究未批） |
+| `scheduler.py` | 状态机 + 重试（≤2）+ 默认关闭（无 cron 集成）；周报模板七节齐全（DRAFT）；6 项测试全过 |
+
+验收报告见 `acceptance/validator-acceptance-2026-11-04.md`、
+`acceptance/sandbox-safety-acceptance-2026-11-04.md`、
+`acceptance/scheduler-report-acceptance-2026-11-04.md`；
+结项核对与 Stage 2 条件见 `acceptance/stage1-closeout-checklist-2026-11-04.md`、
+`acceptance/stage2-startup-conditions-2026-11-04.md`。
+Stage 1 暂不正式结项，Stage 2 只批设计/准备/隔离环境建设。
+
 ## 依赖（Stage 1 第三项第 2 条，2026-11-04 核实）
 
 隔离 venv `~/workspace/tae-research-venv/`（仓库树外，不进仓）：ccxt==4.5.91、
