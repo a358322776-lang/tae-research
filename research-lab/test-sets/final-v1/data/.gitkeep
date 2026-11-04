@@ -1,0 +1,3 @@
+This directory stays empty until B3 freeze. No real test data may be
+placed here under B1. This file exists only so the directory
+structure is tracked by git.
