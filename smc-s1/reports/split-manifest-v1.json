@@ -1,0 +1,55 @@
+{
+  "format_version": "smc-split-manifest-v1",
+  "performance_computed": false,
+  "final_test_access": "blocked-until-freeze",
+  "files": {
+    "stitched_15m.npz": {
+      "sha256": "e1519c6bbb6253cd097d453e4b7718f46f3c303835ffa39addfd8d3e50a82440",
+      "bytes": 3171871,
+      "bars": 238978
+    },
+    "stitched_5m.npz": {
+      "sha256": "a5d5dc387922746708f905a32877b5fff1a238b8e644ad4d56fd2850fa368789",
+      "bytes": 9021462,
+      "bars": 716936
+    },
+    "stitched_1h.npz": {
+      "sha256": "bbcadec5faddab19e941d68ed6c48f6f2f63f17017c19e9cded33f22e0787da1",
+      "bytes": 817118,
+      "bars": 59744
+    },
+    "stitched_funding.csv": {
+      "sha256": "d7c7938fe51d9f43a6297f5ccb6b135e8525d92cda534af72fa98c3a6df66789",
+      "bytes": 173135,
+      "records": 7469,
+      "first_ms": "1577836800000",
+      "last_ms": "1792915200000"
+    }
+  },
+  "split_15m": {
+    "n_bars": 238978,
+    "train": {
+      "start_idx": 0,
+      "end_idx": 119489,
+      "start_ms": 1577836800000,
+      "end_ms": 1685376900000
+    },
+    "validation": {
+      "start_idx": 119489,
+      "end_idx": 167284,
+      "start_ms": 1685376900000,
+      "end_ms": 1728392400000
+    },
+    "final_test": {
+      "start_idx": 167284,
+      "end_idx": 238978,
+      "start_ms": 1728392400000,
+      "end_ms": 1792916100000
+    },
+    "fractions": [
+      0.5,
+      0.2,
+      0.3
+    ]
+  }
+}
