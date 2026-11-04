@@ -38,5 +38,36 @@ python3 -m unittest discover -s research-lab -p "test_registry.py" -v
 | `probe_connectivity.py` | 固定 4 个只读探针（镜像 ping/klines/fundingRate + 直连 fapi ping），不重试，不存响应体 |
 | `test_data_engine.py` | 18 个测试，全过；验收记录见 `acceptance/snapshot-connectivity-2026-11-04.md` |
 
+## 引擎验证（Stage 1 第三项第 1 条，2026-11-04 验收）
+
+| 文件 | 说明 |
+|---|---|
+| `engine_verification.py` | 只读导入 B1/C5 引擎（冻结代码零改动；C5 执行门保持关闭）；独立手算参考 + 合成数据构造 |
+| `test_engine_verification.py` | 40 项检查全过：B1/C5 已知答案 ETH 交易、费用/滑点/资金费/权益/回撤、可复现、无未来泄漏（行为级）；含缺陷 D-ENG-1 钉住测试 |
+
+**缺陷 D-ENG-1**：C5 `run_tier` 把标准 OHLC 行原样传给按 `(open, low,
+high, close)` 解包的 `run_leg_prices`，high/low 互换，止损触发集小于
+文档规则。既往 C5 收益数字不可信为文档规则估计；C5 已退出候选池，
+本轮不修复，修复须另批。验收记录见
+`acceptance/stage1-item3-acceptance-2026-11-04.md`。
+
+## 资金费率快照管道（Stage 1 第三项第 4 条，2026-11-04 验收）
+
+| 文件 | 说明 |
+|---|---|
+| `funding_snapshot.py` | 资金费质量检查（单调/无未来/缺口≤24h，8h 网格对齐）、只读冻结、哈希复核、ledger 只追加 |
+| `fetch_funding_snapshot.py` | 单标的资金费快照 CLI（公开接口，limit ≤ 100） |
+| `test_funding_snapshot.py` | 14 个测试，全过（离线合成数据） |
+
+快照只写 `state/funding-snapshots/`（本地-only）。仅管道验证：不恢复
+CA-1/P4，不做资金费率策略回测。
+
+## 依赖（Stage 1 第三项第 2 条，2026-11-04 核实）
+
+隔离 venv `~/workspace/tae-research-venv/`（仓库树外，不进仓）：ccxt==4.5.91、
+pyarrow==26.0.1、duckdb==2.0.0，锁定见 `requirements-lock.txt`，往返验证
+通过。生产代码零导入；实际接入与格式迁移须另批。详见
+`acceptance/dependency-review-2026-11-04.md`。本轮 VPS 复测：镜像 200、
+直连 fapi 451（2026-11-04T04:37Z 时点测量），见 Stage 1 第三项验收报告 §3。
+
 快照只写 `state/snapshots/`（本地-only），manifest 含“历史可交易集合未声明”注记。
-本轮未安装 ccxt/pyarrow/duckdb（须另行申请），未测 VPS，未建资金费率快照。

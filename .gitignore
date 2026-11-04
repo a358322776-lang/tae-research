@@ -13,3 +13,5 @@ events.jsonl
 hosts.yml
 # 研究实验室运行状态（SQLite 登记库），本地-only，永不进仓
 research-lab/state/
+# Python 字节码缓存
+__pycache__/
