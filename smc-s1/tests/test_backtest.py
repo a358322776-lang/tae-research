@@ -34,9 +34,7 @@ class SkeletonTest(unittest.TestCase):
 
     def test_synthetic_signal_causality(self):
         eng = BacktestEngine(SMCConfig(atr_period=3))
-        out = eng.run_synthetic(
-            _scenario_bars(), "synthetic",
-            opposite_swing_fn=lambda i, d: 99.0)
+        out = eng.run_synthetic(_scenario_bars(), "synthetic")
         self.assertEqual(len(out["orders"]), 1)
         order = out["orders"][0]
         self.assertAlmostEqual(order.limit_px, 105.75)
@@ -50,8 +48,7 @@ class SkeletonTest(unittest.TestCase):
     def test_no_order_without_bos(self):
         bars = mk_bars([(100, 101, 99, 100)] * 20)
         eng = BacktestEngine(SMCConfig(atr_period=3))
-        out = eng.run_synthetic(bars, "synthetic",
-                                opposite_swing_fn=lambda i, d: 99.0)
+        out = eng.run_synthetic(bars, "synthetic")
         self.assertEqual(out["orders"], [])
 
 

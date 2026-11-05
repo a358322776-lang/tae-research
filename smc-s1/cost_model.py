@@ -8,6 +8,8 @@
    显式传入并附来源字符串，模块内无任何硬编码费率；
 2. 以“费率 × 成交名义”为定义逐腿计费（交易所定义），用
    统一模型的 fill_price 求成交价、用 funding_exact_sum 求资金费；
+3. 资金费记录先过 funding_gate 三项检查（重复时间戳、8h 网格
+   对齐容差 60s、异常值），再交统一模型查覆盖完整性。
 3. 输出毛/费/滑点价差/资金费/净 R 五栏并断言恒等式
    net = gross_fill − fee − funding。
 
@@ -21,6 +23,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from _deps import cost_model as _cm
+from funding_gate import check_funding_records
 
 
 @dataclass(frozen=True)
@@ -74,6 +77,10 @@ def price_trade(theoretical_entry: float, theoretical_exit: float,
         raise ValueError("prices must be positive")
     if stop_distance_pct <= 0:
         raise ValueError("stop_distance_pct must be positive")
+    if funding_records is not None:
+        # 资金费三项门禁先行（records=None 时跳过，保持 unknown 语义）；
+        # 覆盖完整性仍由统一模型判定，门禁不重复、不冲突。
+        check_funding_records(funding_records)
     entry_spec = _leg_spec(entry_fee_rate, fee_source)
     exit_spec = _leg_spec(exit_fee_rate, fee_source)
     # 成交价经统一模型 fill_price 求得（滑点/价差为 0 时等于理论价，

@@ -8,7 +8,9 @@
   15m bar 内出现（含 BOS bar 本身），且方向一致；
 - 订单在 FVG 成立 bar 的下一根 bar 起生效（effective_bar），
   最多等待 8 根 15m bar，过期未成交即记录为 expired；
-- 止损锚取信号生成时已确认的反向结构点（解释 I1，见规则文档）。
+- 止损锚取信号生成时已确认的反向结构点（解释 I1，见规则文档），
+  由 anchor.resolve_stop_anchor 直接从 15m Pivot 解析；本模块
+  不接受任何外部传入的止损值，外部价格无法绕过解析器。
 
 本模块不读 K 线、不算指标——趋势/BOS/FVG 由调用方用
 structure/bos/fvg 在已收盘数据上算好后传入，保证无前视。
@@ -18,9 +20,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from anchor import resolve_stop_anchor
 from bos import BOS
 from fvg import FVG
 from risk import compute_stop_target
+from structure import Pivot
 
 
 @dataclass
@@ -59,20 +63,22 @@ class SignalEngine:
         self.events.append(SignalEvent(bar_index, kind, detail))
 
     def _try_create_order(self, bar_index: int, direction: int,
-                          fvgs: list[FVG], opposite_swing_px: float | None,
+                          fvgs: list[FVG], pivots: list[Pivot],
                           atr: float | None) -> Order | None:
         hits = [f for f in fvgs if f.direction == direction]
         if not hits:
             return None
         fvg = hits[0]
-        if atr is None or opposite_swing_px is None:
-            self._log(bar_index, "skip", "missing-atr-or-structure")
+        # 止损锚唯一来源：解析器。无已确认锚点即跳过并记事件。
+        anchor_px = resolve_stop_anchor(pivots, direction, bar_index)
+        if atr is None or anchor_px is None:
+            self._log(bar_index, "skip", "missing-atr-or-anchor")
             self._bos = None
             self.state = "IDLE"
             return None
         entry = fvg.mid
         stop_target, reason = compute_stop_target(
-            direction, entry, opposite_swing_px, atr,
+            direction, entry, anchor_px, atr,
             self.cfg.stop_min_atr, self.cfg.stop_max_atr, self.cfg.target_r)
         if stop_target is None:
             self._log(bar_index, "skip", reason)
@@ -95,12 +101,13 @@ class SignalEngine:
 
     def on_15m_close(self, bar_index: int, trend: str,
                      bos_event: BOS | None, fvgs: list[FVG],
-                     opposite_swing_px: float | None,
+                     pivots: list[Pivot],
                      atr: float | None) -> Order | None:
         """处理一根已收盘 15m bar。返回新下的订单（若有），否则 None。
 
-        opposite_swing_px：信号生成时已确认的反向结构点价格；
-        atr：该 bar 收盘后的 ATR 值。
+        pivots：全部 15m Pivot 列表；止损锚由解析器内部按
+        confirmed_at <= bar_index 过滤，调用方不得预筛、不得
+        传入止损价格。atr：该 bar 收盘后的 ATR 值。
         """
         cfg = self.cfg
         if self.state == "POSITION":
@@ -121,8 +128,7 @@ class SignalEngine:
                 self._log(bar_index, "skip", "bos-fvg-window-expired")
             else:
                 return self._try_create_order(
-                    bar_index, self._bos.direction, fvgs,
-                    opposite_swing_px, atr)
+                    bar_index, self._bos.direction, fvgs, pivots, atr)
         if self.state == "IDLE":
             if bos_event is not None and trend in ("long", "short"):
                 want = 1 if trend == "long" else -1
@@ -135,7 +141,7 @@ class SignalEngine:
                               f"dir={bos_event.direction} struct={bos_event.structure_px}")
                     # BOS 确认时同 bar 的 FVG 也算（任务书“确认时或其后”）。
                     return self._try_create_order(
-                        bar_index, want, fvgs, opposite_swing_px, atr)
+                        bar_index, want, fvgs, pivots, atr)
             return None
         return None
 

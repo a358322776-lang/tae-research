@@ -7,9 +7,12 @@
 - 段位守卫：segment="final_test" 一律拒绝（D4，冻结前禁止
   访问最终测试集绩效）；train/validation 亦须第二批另批后
   才可运行——本批骨架只接受合成数据驱动的单元测试。
-- 本批 run_synthetic 为单时间框架驱动（15m Pivot 同时用于趋势
-  与 BOS），仅验证信号因果顺序；多时间框架（1H 趋势 + 15m
-  信号 + 5m 成交）的时间戳对齐属第二批工作，不在本批冒充。
+- 本批 run_synthetic 为单时间框架驱动（15m Pivot 同时用于趋势、
+  BOS 与止损锚），仅验证信号因果顺序；止损锚由 15m Pivot
+  解析器直接计算（anchor.resolve_stop_anchor），不得外部传入。
+  多时间框架（1H 趋势 + 15m 信号 + 5m 成交）的时间戳对齐属
+  第二批工作，不在本批冒充；时间戳校验（严格递增、等步长）
+  已由 alignment 模块在入口强制。
 
 BacktestEngine 不读文件、不读缓存。
 """
@@ -19,6 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from _deps import Bar
+from alignment import check_series_gaps, validate_strictly_increasing
 from bos import detect_bos
 from config import SMCConfig
 from execution import OrderRecord
@@ -50,18 +54,25 @@ class BacktestEngine:
         self.cfg = config or SMCConfig()
         self.engine = SignalEngine(self.cfg)
 
-    def run_synthetic(self, bars_15m: list[Bar], segment: str,
-                      opposite_swing_fn=None) -> dict:
+    def run_synthetic(self, bars_15m: list[Bar], segment: str) -> dict:
         """合成数据驱动：仅供单元测试验证因果顺序。
 
-        opposite_swing_fn(bar_index, direction) -> 反向结构点价格，
-        测试用注入；真实回测（第二批）由 1H Pivot 计算。
+        止损锚由同一批 15m bar 求得的 Pivot 经解析器计算；
+        时间戳须严格递增且等步长（步长由前两根 bar 推断），
+        否则报错，拒绝以错位数据运行。
         """
         if segment == "final_test":
             raise SegmentBlocked(
                 "final test segment is blocked until freeze (D4)")
         if segment not in ("train", "validation", "synthetic"):
             raise ValueError(f"unknown segment: {segment}")
+        validate_strictly_increasing(bars_15m)
+        if len(bars_15m) >= 2:
+            step_ms = bars_15m[1].open_time - bars_15m[0].open_time
+            gaps = check_series_gaps(
+                [b.open_time for b in bars_15m], step_ms)
+            if gaps:
+                raise ValueError(f"bar timestamps have gaps: {gaps[:3]}")
         atr = atr_wilder(bars_15m, self.cfg.atr_period)
         pivots = find_pivots(bars_15m, self.cfg.pivot_left,
                              self.cfg.pivot_right)
@@ -76,12 +87,8 @@ class BacktestEngine:
                 if self.engine.state == "BOS_SEEN" else 0)
             fvgs = find_fvgs(bars_15m, direction, atr, i, i,
                              self.cfg.fvg_min_atr) if direction != 0 else []
-            swing_px = None
-            if opposite_swing_fn is not None:
-                swing_px = opposite_swing_fn(
-                    i, 1 if trend == "long" else -1)
             order = self.engine.on_15m_close(
-                i, trend, bos, fvgs, swing_px, atr[i])
+                i, trend, bos, fvgs, pivots, atr[i])
             if order is not None:
                 orders.append(OrderRecord(
                     direction=order.direction, limit_px=order.limit_px,
