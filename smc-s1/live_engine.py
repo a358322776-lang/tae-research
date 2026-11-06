@@ -4,10 +4,12 @@
 的收盘时刻（open_time + 900000）；只能用收盘时刻 <= 决策时刻
 的 bar。1H Pivot 在确认 bar 收盘后可用；15m Pivot 同理。
 
-信号口径（解释 I2，B2 报告 §1 显式声明、待用户确认）：
-趋势过滤用 1H Pivot；BOS 结构点用 15m 已确认 Pivot；FVG 用
-15m 三根形态；止损锚用 15m 已确认反向结构点（经
+信号口径（解释 I2，SPEC v1.1 已确认，用户 2026-11-06）：
+趋势过滤用 1H Pivot；BOS 结构点用 1H 已确认 Pivot（15m 收盘
+突破最近已确认的 1H 结构点 ≥0.1 ATR，ATR 仍为 15m ATR(14)）；
+FVG 用 15m 三根形态；止损锚用 15m 已确认反向结构点（经
 anchor.resolve_stop_anchor，信号路径直接调用）。
+15m 版 B2（BOS 结构点取 15m Pivot）因解释改判作废。
 
 触发语义与冻结的 signals.SignalEngine 完全一致（BOS_SEEN 窗口、
 同 bar FVG、过期、跳过原因），等价性由 test_integration 证明；
@@ -213,6 +215,43 @@ def build_confirmed_pivot_series(
     return highs, lows
 
 
+def build_confirmed_pivot_series_1h(
+        bars_1h: list[Bar], bars_15m: list[Bar],
+        pivots_1h: list[Pivot]) -> tuple[list[Pivot | None],
+                                          list[Pivot | None]]:
+    """每根 15m bar 决策时刻最近已确认的 1H 高/低 Pivot（确认扫）。
+
+    解释 I2（SPEC v1.1，已确认）：BOS 结构点取 1H 已确认 Pivot。
+    1H Pivot 在其确认 bar（confirmed_at，1H 下标）收盘后可用；
+    映射到 15m 决策时刻：该 1H bar 的收盘时刻 <= 15m bar 收盘
+    时刻。只读已收盘确认的点，无前视。
+    """
+    closes_1h = [b.open_time + STEP_1H for b in bars_1h]
+    ordered = sorted(pivots_1h, key=lambda p: p.confirmed_at)
+    ptr = 0
+    last_high: Pivot | None = None
+    last_low: Pivot | None = None
+    high_1h: list[Pivot | None] = []
+    low_1h: list[Pivot | None] = []
+    for k in range(len(bars_1h)):
+        while ptr < len(ordered) and ordered[ptr].confirmed_at <= k:
+            if ordered[ptr].kind == "high":
+                last_high = ordered[ptr]
+            else:
+                last_low = ordered[ptr]
+            ptr += 1
+        high_1h.append(last_high)
+        low_1h.append(last_low)
+    highs: list[Pivot | None] = []
+    lows: list[Pivot | None] = []
+    for bar in bars_15m:
+        decision_close = bar.open_time + STEP_15M
+        k = bisect.bisect_right(closes_1h, decision_close) - 1
+        highs.append(high_1h[k] if k >= 0 else None)
+        lows.append(low_1h[k] if k >= 0 else None)
+    return highs, lows
+
+
 def detect_bos_from_gates(bar_index: int, close: float,
                           atr: float | None,
                           high_p: Pivot | None, low_p: Pivot | None,
@@ -245,6 +284,8 @@ class MarketData:
     trend_at: list[str]
     high_at: list[Pivot | None]
     low_at: list[Pivot | None]
+    high_at_1h: list[Pivot | None]
+    low_at_1h: list[Pivot | None]
 
 
 def load_market_data(cache_dir) -> MarketData:
@@ -270,13 +311,16 @@ def load_market_data(cache_dir) -> MarketData:
     pivots_1h = find_pivots(bars_1h, cfg.pivot_left, cfg.pivot_right)
     trend_at = build_trend_series(bars_1h, bars_15m, pivots_1h)
     high_at, low_at = build_confirmed_pivot_series(bars_15m, pivots_15m)
+    high_at_1h, low_at_1h = build_confirmed_pivot_series_1h(
+        bars_1h, bars_15m, pivots_1h)
     return MarketData(
         bars_15m=bars_15m, bars_5m=bars_5m, bars_1h=bars_1h,
         t_5m=[b.open_time for b in bars_5m],
         t_15m=[b.open_time for b in bars_15m],
         funding_records=funding, atr_15m=atr_15m,
         pivots_15m=pivots_15m, pivots_1h=pivots_1h,
-        trend_at=trend_at, high_at=high_at, low_at=low_at)
+        trend_at=trend_at, high_at=high_at, low_at=low_at,
+        high_at_1h=high_at_1h, low_at_1h=low_at_1h)
 
 
 def _cost_one_trade(direction: int, entry_px: float, exit_px: float,
@@ -471,7 +515,7 @@ def run_segment(data: MarketData, segment: str, start_idx: int,
         atr = data.atr_15m[i]
         trend = data.trend_at[i]
         bos = detect_bos_from_gates(
-            i, bar.close, atr, data.high_at[i], data.low_at[i],
+            i, bar.close, atr, data.high_at_1h[i], data.low_at_1h[i],
             cfg.bos_min_atr)
         if mode == "no-trend":
             eff_trend = "long" if (bos is not None and bos.direction == 1) \

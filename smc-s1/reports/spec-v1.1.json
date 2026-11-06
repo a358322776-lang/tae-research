@@ -1,0 +1,178 @@
+{
+    "approval_ref": "I2 reinterpretation: user 2026-11-06 confirmed BOS structure points = 1H confirmed Pivots; 15m B2 (EXP-20261105-001..004) void",
+    "bos_structure_points": "1H confirmed Pivots (interpretation I2, confirmed by user 2026-11-06); trigger bar remains 15m close, ATR remains 15m ATR(14) Wilder",
+    "config": {
+        "atr_method": "wilder_rma",
+        "atr_period": 14,
+        "atr_timeframe": "15m",
+        "bos_fvg_max_bars": 3,
+        "bos_min_atr": 0.1,
+        "fill_timeframe": "5m",
+        "fvg_entry_pct": 0.5,
+        "fvg_min_atr": 0.2,
+        "max_open_orders": 1,
+        "min_trades_formal": 200,
+        "min_trades_no_screening": 100,
+        "order_max_wait_bars": 8,
+        "pivot_left": 2,
+        "pivot_right": 2,
+        "proxy_fill": true,
+        "split_fractions": [
+            0.5,
+            0.2,
+            0.3
+        ],
+        "stop_max_atr": 3.0,
+        "stop_min_atr": 0.5,
+        "target_r": 2.0,
+        "version": "smc-s1-v1.0"
+    },
+    "cost_assumptions": {
+        "central": {
+            "maker": 0.0002,
+            "note": "Binance USD-M Regular/VIP0 list rates; RESEARCH HYPOTHESIS pending official final verification; VIP0 tier assumed, unverified",
+            "slip_spread_per_side": 0.0,
+            "taker": 0.0005
+        },
+        "conservative": {
+            "maker": 0.0004,
+            "slip_spread_basis": "A1 sealed cost-specs-v1.json C5 high tier exec 0.0020 (slip 0.0015 + spread 0.0005 combined once)",
+            "slip_spread_per_side": 0.002,
+            "taker": 0.001
+        },
+        "cost_model": "A1 unified cost model via smc-s1/cost_model.py thin adapter; no duplicated fee formulas",
+        "funding": {
+            "gate": "funding_gate: duplicate timestamps, 8h grid tolerance 60s, |rate| > 0.01 rejected; completeness by unified check_funding_coverage",
+            "method": "exact sum over (t0, t1]",
+            "missing_or_gap": "net R refused (None)"
+        }
+    },
+    "data_boundaries": {
+        "files": {
+            "stitched_15m.npz": {
+                "bars": 238978,
+                "sha256": "e1519c6bbb6253cd097d453e4b7718f46f3c303835ffa39addfd8d3e50a82440"
+            },
+            "stitched_1h.npz": {
+                "bars": 59744,
+                "sha256": "bbcadec5faddab19e941d68ed6c48f6f2f63f17017c19e9cded33f22e0787da1"
+            },
+            "stitched_5m.npz": {
+                "bars": 716936,
+                "sha256": "a5d5dc387922746708f905a32877b5fff1a238b8e644ad4d56fd2850fa368789"
+            },
+            "stitched_funding.csv": {
+                "records": 7469,
+                "sha256": "d7c7938fe51d9f43a6297f5ccb6b135e8525d92cda534af72fa98c3a6df66789"
+            }
+        },
+        "final_test": {
+            "end_idx": 238978,
+            "end_ms": 1792916100000,
+            "start_idx": 167284,
+            "start_ms": 1728392400000
+        },
+        "manifest": "smc-s1/reports/split-manifest-v1.json",
+        "performance_computed": false,
+        "train": {
+            "end_idx": 119489,
+            "end_ms": 1685376900000,
+            "start_idx": 0,
+            "start_ms": 1577836800000
+        },
+        "validation": {
+            "end_idx": 167284,
+            "end_ms": 1728392400000,
+            "start_idx": 119489,
+            "start_ms": 1685376900000
+        }
+    },
+    "execution_proxy_model": {
+        "fill_timeframe": "5m",
+        "lookahead": "forbidden",
+        "penetration_rule": "strict: long Low < Limit, short High > Limit; equality never fills; never before effective bar",
+        "proxy_fill": true,
+        "same_bar_ambiguity": "stop-first, recorded separately"
+    },
+    "experiment_plan": {
+        "ablations": [
+            "no-BOS",
+            "no-FVG",
+            "no-trend-filter"
+        ],
+        "parameter_trials": 0,
+        "rolling_out_of_sample": {
+            "no_parameter_selection": true,
+            "observation_months": 4,
+            "scope": "train+validation segments only",
+            "scored_months": 2,
+            "scored_windows_non_overlapping": true,
+            "step_months": 2,
+            "window_months": 6
+        },
+        "stress_tests": [
+            "cost-doubling conservative tier"
+        ]
+    },
+    "file_hashes_sha256": {
+        "smc-s1/access.py": "80692d401bfbb6d7f5454b1858b12f5829fea3538e978b5b5323a1eb166b3ade",
+        "smc-s1/alignment.py": "1bf472195247358dbb417c17b7d9a8e9af2a3a4c1b8552f2bd65697b37a64562",
+        "smc-s1/anchor.py": "dd35576a3da4b64ddcf33d87bb8d42ca7606092a61a3d90bde8154b1a5009c79",
+        "smc-s1/backtest.py": "db96d46305812def709d1d5025086612c1abbf3a70943b11fe889cd77be9ace1",
+        "smc-s1/bos.py": "a5030bd451bd76ee1220827e4565212b892c943111f0baa09263a506c1b8d849",
+        "smc-s1/config.py": "3032bc1f721a86a3abcefe84e2f1d8b1b36056ac4702a725518714288d1aee61",
+        "smc-s1/cost_model.py": "ff428de8c90143373ca36da71ec49d8ce188dd96adfce4e2dd87e7b125000cea",
+        "smc-s1/funding_gate.py": "26da780227c29e55f5acba4d93a0b3b03eb9e2cb35984e1b7c19fd69ecf53edd",
+        "smc-s1/live_engine.py": "e721efc737c38cca2c7fb52bfaa2f369ed66d7f89f77438c0de8f83e7c0e67f9",
+        "smc-s1/reports/smc-s1-rules-v1.0.md": "30a2d94193bea7303dbb988ffd214468df6af00a2daf04821e74f82deebeda7b",
+        "smc-s1/reports/spec-v1.1.md": "9e6c67be75a734ef0d95eef05cb72e032a853371261052a00985089e57b514c7",
+        "smc-s1/reports/split-manifest-v1.json": "13fd0c6f379849bf7a6469617c16d5254833e5d15bdc128fe1c0fa89bfb8f87d",
+        "smc-s1/run_b2_1h.py": "e06c0d3b755dd54e90b09c8528abb1be5136fb56abdb972cdd34f21d990c41c1",
+        "smc-s1/signals.py": "489133f98cc80ccbd020df16694dcf4bb5bd5f6950ec7aa4b71bc701f4559e88"
+    },
+    "frozen_date": "2026-11-06",
+    "hypothesis_id": "HYP-20261105-01",
+    "primary_metrics": [
+        "win_rate",
+        "mean_net_r",
+        "profit_factor",
+        "max_drawdown_r",
+        "trade_frequency",
+        "ci95",
+        "lag1_autocorr"
+    ],
+    "round_id": "ROUND-2026-W45",
+    "sample_gates_d5": {
+        "100_to_199": "exploration only",
+        "gte_200": "formal statistical evaluation with CI and time-correlation checks",
+        "insufficient": "INCONCLUSIVE",
+        "lt_100": "no parameter screening"
+    },
+    "screen_status": "provisional-borderline-do-not-raise",
+    "screen_total": 6,
+    "spec_version": "smc-s1-spec-v1.1",
+    "status": "frozen",
+    "stop_anchor": {
+        "confirmed_rule": "confirmed_at <= as_of_bar_index",
+        "definition": "I1: nearest confirmed opposite 15m pivot at signal generation; long takes latest confirmed low, short takes latest confirmed high",
+        "external_override": "forbidden",
+        "resolver": "anchor.resolve_stop_anchor"
+    },
+    "supersedes": {
+        "reason": "BOS structure points reinterpreted from 15m to 1H Pivots (I2)",
+        "spec": "spec-v1.0",
+        "void_experiments": [
+            "EXP-20261105-001",
+            "EXP-20261105-002",
+            "EXP-20261105-003",
+            "EXP-20261105-004"
+        ]
+    },
+    "symbol": "ETHUSDT",
+    "verdict_rules": {
+        "FAIL": "train completed trades >= 200 AND (validation CI95 upper bound < 0 OR validation mean net R < 0)",
+        "INCONCLUSIVE": "all other cases, including insufficient sample and conflicting indicators",
+        "PASS": "ALL of: train completed trades >= 200; validation mean net R CI95 lower bound > 0; validation PF > 1; conservative-tier validation mean net R > 0; all 3 ablations strictly worsen validation mean net R vs full-rule baseline (central tier). Any ablation unrunnable for sample reasons voids PASS.",
+        "final_test_role": "not part of this SPEC verdict; frozen until B3"
+    }
+}

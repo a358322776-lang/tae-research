@@ -4,6 +4,9 @@
 配置见 config）。结构点必须是确认的（confirmed_at <= 决策 bar），
 ATR 必须是决策 bar 收盘后计算的值——调用方传入截至决策 bar 的
 atr 列表，本模块不向前取任何未来 bar。
+结构点所属周期由调用方传入的 pivots 决定：实盘接线（live_engine）
+按 SPEC v1.1（解释 I2 已确认）传入 1H 已确认 Pivot；本模块本身
+与周期无关，只判定传入的已确认点。
 """
 
 from __future__ import annotations

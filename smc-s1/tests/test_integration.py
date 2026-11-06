@@ -23,7 +23,9 @@ from config import SMCConfig  # noqa: E402
 from cost_model import price_trade  # noqa: E402
 from helpers import mk_bars  # noqa: E402
 from live_engine import (LookaheadError, MarketData, _bars_from_npz,  # noqa: E402
-                         build_confirmed_pivot_series, build_trend_series,
+                         build_confirmed_pivot_series,
+                         build_confirmed_pivot_series_1h,
+                         build_trend_series,
                          detect_bos_from_gates, load_market_data,
                          run_segment, trades_hash)
 from structure import atr_wilder, find_pivots, trend_state  # noqa: E402
@@ -45,6 +47,8 @@ def _market(spec15, spec1h, spec5m, atr_period=3):
     p15 = find_pivots(bars15, 2, 2)
     p1h = find_pivots(bars1h, 2, 2)
     highs, lows = build_confirmed_pivot_series(bars15, p15)
+    highs_1h, lows_1h = build_confirmed_pivot_series_1h(
+        bars1h, bars15, p1h)
     return MarketData(
         bars_15m=bars15, bars_5m=bars5, bars_1h=bars1h,
         t_5m=[b.open_time for b in bars5],
@@ -52,14 +56,16 @@ def _market(spec15, spec1h, spec5m, atr_period=3):
         funding_records=[(BASE, 0.0001)],
         atr_15m=atr, pivots_15m=p15, pivots_1h=p1h,
         trend_at=build_trend_series(bars1h, bars15, p1h),
-        high_at=highs, low_at=lows)
+        high_at=highs, low_at=lows,
+        high_at_1h=highs_1h, low_at_1h=lows_1h)
 
 
 def _zigzag_1h():
-    # 高点 @3(107,conf@5)/@6(110,conf@8) HH，低点 @2(95,conf@4)/
+    # 高点 @3(104,conf@5)/@6(106,conf@8) HH，低点 @2(95,conf@4)/
     # @5(97,conf@7) HL；峰谷错开（find_pivots 的 elif 使同 bar
-    # 不能兼为高低 Pivot）。15m bar 35 起趋势 long。
-    highs = [100, 101, 102, 107, 103, 104, 110, 105, 104, 103, 102, 101]
+    # 不能兼为高低 Pivot）。15m bar 35 起趋势 long；15m bar 35
+    # 收盘 107 突破最近已确认 1H 结构点 106（解释 I2，SPEC v1.1）。
+    highs = [100, 101, 102, 104, 103, 102, 106, 105, 104, 103, 102, 101]
     lows = [99, 100, 95, 99, 98, 97, 100, 99, 101, 100, 99, 98]
     return [((h + l) / 2, h, l, (h + l) / 2) for h, l in zip(highs, lows)]
 
@@ -234,11 +240,68 @@ class GapDetectionTest(unittest.TestCase):
                 _bars_from_npz(Path(tmp) / "x.npz", 900000, "test")
 
 
+class Bos1hSeriesTest(unittest.TestCase):
+    def test_1h_series_matches_naive(self):
+        spec1h = _zigzag_1h() * 3  # 30 根 1H，重复 zigzag
+        bars1h = mk_bars(spec1h, start_ms=BASE, step_ms=3600000)
+        bars15 = mk_bars(_flat(120), start_ms=BASE, step_ms=900000)
+        pivots = find_pivots(bars1h, 2, 2)
+        highs, lows = build_confirmed_pivot_series_1h(
+            bars1h, bars15, pivots)
+        closes = [b.open_time + 3600000 for b in bars1h]
+        for i, bar in enumerate(bars15):
+            import bisect
+            k = bisect.bisect_right(closes, bar.open_time + 900000) - 1
+            if k < 0:
+                self.assertIsNone(highs[i], f"bar {i}")
+                self.assertIsNone(lows[i], f"bar {i}")
+                continue
+            conf = find_pivots(bars1h, 2, 2, as_of=k)
+            want_h = [p for p in conf if p.kind == "high"]
+            want_l = [p for p in conf if p.kind == "low"]
+            self.assertEqual(
+                highs[i].price if highs[i] else None,
+                want_h[-1].price if want_h else None, f"bar {i}")
+            self.assertEqual(
+                lows[i].price if lows[i] else None,
+                want_l[-1].price if want_l else None, f"bar {i}")
+
+    def test_1h_pivot_only_after_confirmation_close(self):
+        bars1h = mk_bars(_zigzag_1h(), start_ms=BASE, step_ms=3600000)
+        bars15 = mk_bars(_flat(40), start_ms=BASE, step_ms=900000)
+        pivots = find_pivots(bars1h, 2, 2)
+        highs, lows = build_confirmed_pivot_series_1h(
+            bars1h, bars15, pivots)
+        # 第二个 1H 高点 106 在 1H bar 8 确认（bar 8 收盘 = 9h）；
+        # 15m bar 34 收盘 8.75h 时仍为 104，bar 35 收盘 9h 时为 106。
+        self.assertEqual(highs[34].price, 104)
+        self.assertEqual(highs[35].price, 106)
+        # 低点 97 在 1H bar 7 确认（收盘 8h）；bar 31 收盘 8h 时
+        # 已可用，bar 30 收盘 7.75h 时仍为 95。
+        self.assertEqual(lows[30].price, 95)
+        self.assertEqual(lows[31].price, 97)
+
+    def test_bos_breaks_1h_structure_not_15m(self):
+        # 锚点场景：15m bar 35 收盘 107。15m 已确认高点仅 ~103，
+        # 1H 已确认高点为 106；BOS 结构价须为 106（解释 I2）。
+        spec15 = AnchorGatingTest()._scenario()
+        data = _market(spec15, _zigzag_1h(), _derive_5m(spec15))
+        res = run_segment(data, "train", 0, 40, "baseline", CFG3)
+        self.assertEqual(res.n_bos, 1)
+        bos_logs = [s for s in res.signals if s.kind == "bos"]
+        self.assertEqual(len(bos_logs), 1)
+        self.assertEqual(bos_logs[0].bar_index, 35)
+        self.assertIn("struct=106", bos_logs[0].detail)
+        self.assertGreaterEqual(len(res.orders), 1)
+        self.assertEqual(res.orders[0].created_bar, 35)
+
+
 class EquivalenceTest(unittest.TestCase):
     def test_baseline_matches_signal_engine_driver(self):
         """同一 bar 流 + 同一 1H 趋势下，live 引擎触发订单须与
-        冻结 SignalEngine 逐 bar 驱动的结果完全一致。"""
-        from bos import detect_bos as _detect_bos
+        冻结 SignalEngine 逐 bar 驱动的结果完全一致。BOS 按
+        SPEC v1.1（解释 I2）取 1H 结构点，驱动端与 live 引擎
+        同口径；止损锚仍取 15m Pivot。"""
         from fvg import find_fvgs as _find_fvgs
         from signals import SignalEngine
 
@@ -266,7 +329,9 @@ class EquivalenceTest(unittest.TestCase):
         ref_orders = []
         for i, bar in enumerate(bars):
             trend = data.trend_at[i]
-            bos = _detect_bos(bars, pivots, atr, i, 0.1)
+            bos = detect_bos_from_gates(i, bar.close, atr[i],
+                                        data.high_at_1h[i],
+                                        data.low_at_1h[i], 0.1)
             direction = bos.direction if bos is not None else (
                 eng._bos.direction if eng.state == "BOS_SEEN" else 0)
             fvgs = _find_fvgs(bars, direction, atr, i, i, 0.2) \
